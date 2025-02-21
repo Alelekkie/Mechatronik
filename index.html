@@ -1104,16 +1104,157 @@ To wiertarka zamocowana na stole roboczym, składająca się z podstawy, kolumny
 </p>
                 <button class="toggle-btn">Schowaj</button>
             </div>
-
-     
         </div>
 
 
 
          <div class="material">
-            <h2 class="title">Tytuł 2</h2>
+            <h2 class="title">RLC - Rezystor, cewka, kondesator</h2>
             <div class="content">
-                <p>To jest treść materiału 2. Możesz dodać tutaj więcej informacji.</p>
+                <p> <h2><strong>Podstawowe pojęcia</strong></h2>
+
+  <p><strong>Rezystancja (R)</strong></p>
+  <ul>
+    <li><strong>Jednostka:</strong> omy (Ω)</li>
+    <li><strong>Charakterystyka:</strong> Dla rezystora prawo Ohma (V = I·R) zachodzi zarówno dla prądu stałego, jak i zmiennego. W obwodzie z samym rezystorem napięcie i prąd są zawsze w fazie (nie występuje przesunięcie fazowe).</li>
+    <li><strong>Prawo Ohma:</strong> Tak, w czystym rezystorze prawo Ohma jest w pełni słuszne – napięcie i prąd są proporcjonalne, a ich fazy są takie same.</li>
+  </ul>
+
+  <p><strong>Kondensator (C)</strong></p>
+  <ul>
+    <li><strong>Jednostka:</strong> farady (F)</li>
+    <li><strong>Charakterystyka:</strong> Kondensator gromadzi energię w postaci pola elektrycznego. W obwodzie prądu zmiennego pojawia się reaktancja pojemnościowa, która wynosi: <br>
+      <em>X<sub>C</sub> = 1/(ω · C)</em>, gdzie <em>ω = 2πf</em> (częstotliwość kątowa).
+    </li>
+    <li><strong>Faza:</strong> Prąd w kondensatorze wyprzedza napięcie o 90° (prąd maksymalny, gdy napięcie przechodzi przez zero).</li>
+    <li><strong>Prawo Ohma:</strong> W prostym sensie prawo Ohma nie ma tu zastosowania, ponieważ stosujemy uogólnione prawo Ohma w postaci analizy fasorowej, gdzie stosujemy impedancję zamiast samej rezystancji.</li>
+  </ul>
+
+  <p><strong>Cewka (L)</strong></p>
+  <ul>
+    <li><strong>Jednostka:</strong> henry (H)</li>
+    <li><strong>Charakterystyka:</strong> Cewka gromadzi energię w postaci pola magnetycznego. Dla cewki w obwodzie prądu zmiennego mamy reaktancję indukcyjną: <br>
+      <em>X<sub>L</sub> = ω · L</em>.
+    </li>
+    <li><strong>Faza:</strong> Napięcie na cewce wyprzedza prąd o 90° (czyli napięcie osiąga wartość maksymalną wcześniej niż prąd).</li>
+    <li><strong>Prawo Ohma:</strong> Sama cewka nie posiada „rezystancji” (choć rzeczywista cewka ma niewielkie straty), lecz jej zachowanie opisuje impedancja <em>Z<sub>L</sub> = jωL</em>. Prawo Ohma w postaci <em>V = I·Z</em> w domenie fasorowej nadal obowiązuje, ale należy uwzględniać przesunięcia fazowe.</li>
+  </ul>
+
+  <h2><strong>Szczegółowe zachowanie w obwodach AC</strong></h2>
+
+  <p><strong>Rezystor (R) w prądzie zmiennym</strong></p>
+  <ul>
+    <li><strong>Zachowanie:</strong> Napięcie i prąd są w fazie.</li>
+    <li><strong>Impedancja:</strong> <em>Z<sub>R</sub> = R</em> (jest wartością rzeczywistą).</li>
+    <li><strong>Prawo Ohma:</strong> Tak, prawo Ohma w postaci fasorowej <em>V = I·Z</em> ma tu pełne zastosowanie.</li>
+  </ul>
+
+  <p><strong>Cewka (L) w prądzie zmiennym</strong></p>
+  <ul>
+    <li><strong>Zachowanie:</strong>  
+      <ul>
+        <li>Impedancja cewki: <em>Z<sub>L</sub> = jX<sub>L</sub> = jωL</em>.</li>
+        <li>Napięcie wyprzedza prąd o 90°.</li>
+      </ul>
+    </li>
+    <li><strong>Reaktancja:</strong> Jest to „opór” dla prądu zmiennego wynikający z indukcyjności – czysto reaktywna część impedancji.</li>
+    <li><strong>Prawo Ohma:</strong> W uogólnionej formie (przy użyciu impedancji) prawo Ohma nadal obowiązuje, ale należy uwzględniać przesunięcie fazowe między napięciem a prądem.</li>
+  </ul>
+
+  <p><strong>Kondensator (C) w prądzie zmiennym</strong></p>
+  <ul>
+    <li><strong>Zachowanie:</strong>  
+      <ul>
+        <li>Impedancja kondensatora: <em>Z<sub>C</sub> = -j/(ωC)</em> (oznacza, że faza prądu wyprzedza napięcie o 90°).</li>
+        <li>Reaktancja pojemnościowa: <em>X<sub>C</sub> = 1/(ωC)</em>.</li>
+      </ul>
+    </li>
+    <li><strong>Prawo Ohma:</strong> Analogicznie jak w przypadku cewki, stosujemy uogólnione prawo Ohma z impedancją. Samo prawo <em>V = I·R</em> nie opisuje przesunięcia fazowego, ale fasorowa wersja <em>V = I·Z</em> uwzględnia je.</li>
+  </ul>
+
+  <h2><strong>Reaktancja i susceptancja</strong></h2>
+
+  <p><strong>Reaktancja</strong></p>
+  <ul>
+    <li>To miara oporu elementów biernych (cewki, kondensatora) wobec przepływu prądu zmiennego, zależna od częstotliwości.</li>
+    <li>Dla cewki: <em>X<sub>L</sub> = ωL</em>. Dla kondensatora: <em>X<sub>C</sub> = 1/(ωC)</em>.</li>
+  </ul>
+
+  <p><strong>Susceptancja (B)</strong></p>
+  <ul>
+    <li><strong>Admitancja (Y):</strong> To odwrotność impedancji, czyli <em>Y = 1/Z = G + jB</em>, gdzie <em>G</em> to przewodność, a <em>B</em> to susceptancja.</li>
+    <li><strong>Susceptancja indukcyjna:</strong> Wynika z impedancji cewki <em>Z<sub>L</sub> = jωL</em>. Dla cewki:  
+      <em>Y<sub>L</sub> = 1/(jωL) = -j/(ωL)</em>, co oznacza, że susceptancja indukcyjna wynosi <em>-1/(ωL)</em> (ujemna wartość wskazuje na charakter indukcyjny).
+    </li>
+    <li><strong>Susceptancja pojemnościowa:</strong> Dla kondensatora <em>Z<sub>C</sub> = -j/(ωC)</em>, więc  
+      <em>Y<sub>C</sub> = 1/Z<sub>C</sub> = jωC</em>, co oznacza, że susceptancja pojemnościowa wynosi <em>ωC</em> (jest dodatnia).
+    </li>
+  </ul>
+
+  <h2><strong>Obwody mieszane</strong></h2>
+
+  <p><strong>Obwód RL (cewka i rezystor w szeregu)</strong></p>
+  <ul>
+    <li><strong>Impedancja całkowita:</strong> <em>Z = R + jωL</em></li>
+    <li><strong>Zachowanie:</strong> Prąd jest taki sam w obu elementach. Napięcia na rezystorze i cewce sumują się fasorowo – napięcie na cewce (z opóźnieniem/przodu 90°) względem napięcia na rezystorze.</li>
+    <li><strong>Prawo Ohma:</strong> Stosowane w domenie fasorowej: <em>V = I·Z</em>.</li>
+  </ul>
+
+  <p><strong>Obwód RC (kondensator i rezystor w szeregu)</strong></p>
+  <ul>
+    <li><strong>Impedancja całkowita:</strong> <em>Z = R - j/(ωC)</em></li>
+    <li><strong>Zachowanie:</strong> Prąd jest taki sam; napięcia na kondensatorze (prąd wyprzedza napięcie o 90°) i na rezystorze sumują się fasorowo.</li>
+    <li><strong>Prawo Ohma:</strong> Tak, przy użyciu impedancji.</li>
+  </ul>
+
+  <p><strong>Obwód RLC (rezystor, cewka i kondensator w szeregu)</strong></p>
+  <ul>
+    <li><strong>Impedancja całkowita:</strong> <em>Z = R + j(ωL - 1/(ωC))</em></li>
+    <li><strong>Zachowanie:</strong> Faza i amplituda prądu zależą od relacji między reaktancją indukcyjną (<em>ωL</em>) a pojemnościową (<em>1/(ωC)</em>).</li>
+    <li><strong>Rezonans:</strong> Występuje, gdy <em>ωL = 1/(ωC)</em> – wtedy część urojona znika, a impedancja jest czysto rezystancyjna. W obwodzie szeregowym daje to maksymalny przepływ prądu (rezonans prądowy).</li>
+  </ul>
+
+  <p><strong>Obwód LC (cewka i kondensator w szeregu lub równolegle)</strong></p>
+  <ul>
+    <li><strong>Zachowanie:</strong> Obwody LC wykazują zjawisko rezonansu.</li>
+    <li><strong>Rezonans:</strong> Dla szeregu, przy <em>ω₀ = 1/√(LC)</em>, impedancja jest minimalna (idealnie zerowa, pomijając straty), co powoduje bardzo wysoki prąd. W obwodzie równoległym impedancja przy rezonansie teoretycznie dąży do nieskończoności, co oznacza bardzo niski pobór prądu.</li>
+  </ul>
+
+  <h2><strong>Impedancja i admitancja</strong></h2>
+
+  <p><strong>Impedancja (Z)</strong></p>
+  <ul>
+    <li>Jest to uogólnienie oporu dla prądu zmiennego i jest wartością zespoloną: <em>Z = R + jX</em>, gdzie <em>R</em> to część rzeczywista (rezystancja), a <em>X</em> to reaktancja (dodatnia dla indukcyjnej, ujemna dla pojemnościowej).</li>
+    <li>Impedancja określa, jak elementy obwodu reagują na prąd zmienny.</li>
+  </ul>
+
+  <p><strong>Admitancja (Y)</strong></p>
+  <ul>
+    <li>Jest odwrotnością impedancji: <em>Y = 1/Z = G + jB</em>, gdzie <em>G</em> to przewodność (część rzeczywista), a <em>B</em> to susceptancja (część urojona).</li>
+  </ul>
+
+  <h2><strong>Rezonans</strong></h2>
+
+  <p><strong>Rezonans – różnica między napięciem a prądem</strong></p>
+  <ul>
+    <li><strong>Rezonans prądowy (w obwodach szeregowych):</strong> W punkcie rezonansu (gdy reaktancje kondensatora i cewki się znoszą) impedancja obwodu jest minimalna, co powoduje maksymalny przepływ prądu. Napięcie przyłożone do całego obwodu dzieli się na elementy – na rezystorze pojawia się spadek napięcia zgodny z prawem Ohma, a na elementach reaktywnych (cewka i kondensator) mogą występować bardzo wysokie napięcia, mimo że ich suma (część urojona) wynosi zero.</li>
+    <li><strong>Rezonans napięciowy (w obwodach równoległych):</strong> Przy rezonansie równoległym impedancja obwodu dąży do maksimum, co powoduje bardzo niski pobór prądu z zasilania, a napięcie w obwodzie może być znacznie wyższe od napięcia źródłowego.</li>
+  </ul>
+
+  <p><strong>Jak powstaje rezonans?</strong></p>
+  <ul>
+    <li>Rezonans powstaje, gdy reaktancja indukcyjna i pojemnościowa mają tę samą wartość, ale przeciwne znaki, czyli: <em>ωL = 1/(ωC)</em>.</li>
+    <li>Stąd częstotliwość rezonansowa: <em>ω₀ = 1/√(LC)</em> lub <em>f₀ = 1/(2π√(LC))</em>.</li>
+    <li>W tej sytuacji suma części urojonych impedancji wynosi zero, a obwód zachowuje się jak czysty rezystor (w obwodach szeregowych) lub jak element o bardzo wysokiej impedancji (w obwodach równoległych).</li>
+  </ul>
+
+  <p><strong>Jak dobrać częstotliwość, aby układ nie wpadł w rezonans?</strong></p>
+  <ul>
+    <li>Znajdź częstotliwość rezonansową <em>f₀</em> obwodu, korzystając ze wzoru: <em>f₀ = 1/(2π√(LC))</em>.</li>
+    <li>Aby uniknąć rezonansu, należy pracować przy częstotliwościach, które znacząco różnią się od <em>f₀</em>.</li>
+    <li>Dla obwodów szeregowych – jeśli pracujesz przy częstotliwościach wyższych lub niższych od <em>f₀</em>, reaktancja (i więc impedancja) będzie rosnąć, co zmniejszy prąd.</li>
+    <li>W praktyce projektuje się układ tak, aby zakres roboczy (częstotliwości, przy których obwód działa) był oddalony od częstotliwości rezonansowej lub stosuje się tłumiki, ograniczające wzrost prądu lub napięcia przy rezonansie.</li>
+  </ul></p>
                 <button class="toggle-btn">Schowaj</button>
             </div>
         </div>
