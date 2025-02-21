@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechatronika - Materiały</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            padding: 10px;
+        }
+
+        .material {
+            background-color: white;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            margin: 0;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .content {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+
+        button:hover {
+            background-color: #e65c00;
+        }
+
+        /* Responsywność */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .material {
+                padding: 15px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            button {
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.2em;
+            }
+
+            .material {
+                padding: 10px;
+            }
+
+            .content {
+                padding: 10px;
+            }
+
+            button {
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Mechatronika - Materiały</h1>
+    </header>
+    <main>
+        <div class="material">
+            <h2 class="title">Tytuł 1</h2>
+            <div class="content">
+                <p>Definicja przepływu laminarnego
+Przepływ laminarny to rodzaj przepływu cieczy lub gazu, w którym cząsteczki poruszają się po ścieżkach równoległych do siebie, bez mieszania między warstwami. Charakteryzuje się niskim numerem Reynoldsa (Re < 2300 dla rur) i występuje przy niskich prędkościach przepływu.
+
+Przykład: Powolny przepływ wody przez cienką rurkę kapilarną lub w oleju hydraulicznego w układach precyzyjnych.
+
+Definicja przepływu turbulentnego
+Przepływ turbulentny to przepływ chaotyczny, w którym cząsteczki cieczy lub gazu mieszają się intensywnie między sobą. Charakteryzuje się wysokim numerem Reynoldsa (Re > 4000) oraz występuje przy dużych prędkościach i niskiej lepkości.
+
+Przykład: Woda płynąca z dużą prędkością przez rzekę lub powietrze wokół skrzydeł samolotu.
+
+Co to jest natężenie przepływu?
+Natężenie przepływu to ilość cieczy lub gazu przepływająca przez dany przekrój w jednostce czasu. Może być wyrażone jako:
+
+Objetościowe natężenie przepływu (Q) w m³/s, l/min
+
+Masowe natężenie przepływu (ż) w kg/s
+
+Wzór: , gdzie v - prędkość przepływu, A - pole przekroju poprzecznego.
+
+Zależności natężenia przepływu przy zmianie przekroju
+Zgodnie z równaniem ciągłości:
+
+Zmniejszenie przekroju powoduje wzrost prędkości, a zwiększenie przekroju - jej spadek.
+
+Przykład: W zwęże Venturiego prędkość wzrasta w miejscu zwężenia.
+
+Parametry charakteryzujące stan powietrza roboczego
+
+Ciśnienie (bar, MPa)
+
+Temperatura (K, °C)
+
+Wilgotność względna (%RH)
+
+Punkt rosy (°C)
+
+Zanieczyszczenia (oleje, cząstki stałe, wilgoć)
+
+Dlaczego azot jest lepszy w oponach niż powietrze?
+
+Mniejsze wahania ciśnienia przy zmianach temperatury
+
+Brak wilgoci zapobiega korozji
+
+Większa stabilność ciśnienia w czasie
+
+Zanieczyszczenia powietrza atmosferycznego
+
+Pyły (PM2.5, PM10)
+
+Gazy toksyczne (CO, NOx, SOx)
+
+Ciekawe lotne związki organiczne (VOC)
+
+Klasy zanieczyszczeń i zawodnienie powietrza
+
+ISO 8573-1 klasy czystości (1-9)
+
+Wilgoć może powodować korozję, uszkodzenia siłowników
+
+Atmosferyczny i ciśnieniowy punkt rosy
+
+Atmosferyczny: temperatura, w której para wodna zaczyna skraplać się przy ciśnieniu atmosferycznym.
+
+Ciśnieniowy: punkt rosy pod konkretnym ciśnieniem (np. w pneumatyce ~ -40°C)
+
+Klasy czystości powietrza
+Według normy ISO 8573-1:
+
+Klasa 1: Bardzo czyste
+
+Klasa 5: Powietrze przemysłowe
+
+Klasa 9: Mocno zanieczyszczone
+
+Osuszanie adsorpcyjne
+
+Definicja: Usuwanie wilgoci przez adsorbenty (np. żel krzemionkowy)
+
+Zalety: Niski punkt rosy (-40°C i niżej)
+
+Wady: Wymiana adsorbentu, kosztowne w eksploatacji
+
+Zasada działania: Powietrze przechodzi przez adsorbent, który pochłania wilgoć
+
+Osuszanie ziębnicze
+
+Definicja: Usuwanie wilgoci przez schładzanie powietrza do punktu rosy (~3°C)
+
+Zalety: Tańsze niż adsorpcyjne, niska eksploatacja
+
+Wady: Punkt rosy nie spada poniżej 3°C
+
+Zasada działania: Powietrze jest schładzane w wymienniku ciepła, a woda kondensuje
+
+Budowa typowego układu pneumatycznego
+
+Sprężarka
+
+Układ przygotowania powietrza (filtr, reduktor, smarownica)
+
+Przewody pneumatyczne
+
+Elementy sterujące (zawory)
+
+Siłowniki pneumatyczne
+
+Układ przygotowania powietrza
+Zespół filtrujący, redukujący i smarujący powietrze przed dostarczeniem do układu.
+
+Sprężarka
+Urządzenie do sprężania powietrza. Rodzaje:
+
+Tłokowe (małe instalacje)
+
+Śrubowe (przemysłowe, ciągła praca)
+
+Membranowe (cicha praca, brak oleju)
+
+Elementy sterujące powietrzem
+Elementy sterujące powietrzem to komponenty stosowane w układach pneumatycznych, które umożliwiają kontrolowanie przepływu i kierunku sprężonego powietrza. Do najważniejszych elementów sterujących należą:
+
+Zawory sterujące (rozdzielacze) – zmieniają kierunek przepływu powietrza,
+
+Zawory dławiące i zwrotne – regulują natężenie przepływu powietrza,
+
+Zawory odcinające – umożliwiają zatrzymanie przepływu powietrza,
+
+Regulatory ciśnienia – utrzymują stałe ciśnienie w układzie.
+
+Elementy wykonawcze pneumatyczne
+Elementy wykonawcze to komponenty przekształcające energię sprężonego powietrza na ruch mechaniczny. Dzielą się na:
+
+Siłowniki pneumatyczne – generują ruch liniowy lub obrotowy,
+
+Silniki pneumatyczne – przekształcają energię powietrza w ruch obrotowy,
+
+Napędy pneumatyczne – stosowane np. w robotyce i automatyce.
+
+Modułowy układ przygotowania powietrza
+Układ ten zapewnia odpowiednią jakość powietrza do systemów pneumatycznych. Składa się z:
+
+Filtrów – usuwają zanieczyszczenia i wilgoć,
+
+Regulatorów ciśnienia – stabilizują ciśnienie powietrza,
+
+Smarownic – dodają mgłę olejową do powietrza,
+
+Zaworów odcinających – zabezpieczają przed nagłym dopływem powietrza.
+
+Fazy istnienia obiektu technicznego
+
+Sformułowanie potrzeby – identyfikacja i analiza zapotrzebowania.
+
+Konstruowanie – projektowanie i opracowanie dokumentacji.
+
+Wytwarzanie – proces produkcji i testowania.
+
+Eksploatacja – użytkowanie i konserwacja.
+
+Likwidacja – demontaż i utylizacja.
+
+Cechy obiektu w fazie istnienia
+
+Funkcjonalność,
+
+Trwałość i niezawodność,
+
+Ekonomiczność użytkowania,
+
+Łatwość konserwacji,
+
+Możliwość recyklingu po zakończeniu eksploatacji.
+
+Definicja elementów wykonawczych
+Elementy wykonawcze to urządzenia przekształcające energię (elektryczną, pneumatyczną, hydrauliczną) na ruch mechaniczny, umożliwiając działanie maszyn i urządzeń.
+
+Okres sformułowania potrzeby
+To etap identyfikacji problemu technicznego i określenia wymagań dla nowego rozwiązania.
+
+Okres konstruowania
+Obejmuje projektowanie, opracowanie modeli i testowanie prototypów.
+
+Okres wytwarzania
+Proces produkcji elementów, montaż oraz kontrola jakości.
+
+Okres eksploatacji
+Czas użytkowania obiektu, obejmujący konserwację i serwisowanie.
+
+Okres likwidacji
+Demontaż, utylizacja lub recykling elementów obiektu technicznego.
+
+Kompresor – co to jest i jak działa?
+Kompresor to urządzenie do sprężania powietrza. Działa na zasadzie pobierania powietrza atmosferycznego, sprężania go do określonego ciśnienia i magazynowania w zbiorniku.
+
+Sprężarka – co to jest i jak działa?
+Sprężarka to urządzenie do zwiększania ciśnienia gazu przez zmniejszenie jego objętości. Może być tłokowa, śrubowa, membranowa czy odśrodkowa.
+
+Sprężarki wyporowe tłokowe – zasada działania, wady i zalety
+
+Zasada działania: Sprężanie powietrza odbywa się przez ruch tłoka w cylindrze.
+
+Zalety: Wysoka wydajność, możliwość pracy przy wysokim ciśnieniu.
+
+Wady: Duża masa i głośność pracy, konieczność smarowania.
+
+Sprężarki membranowe – zasada działania, wady i zalety
+
+Zasada działania: Membrana napędzana mechanicznie zmienia objętość komory sprężania.
+
+Zalety: Brak smarowania, wysoka czystość sprężonego gazu.
+
+Wady: Ograniczona wydajność i stosunkowo wysoka cena.
+
+Sprężarki wyporowe – obrotowe
+
+Sprężanie odbywa się poprzez obracające się elementy, np. śruby czy łopatki.
+
+Stosowane w dużych systemach przemysłowych.
+
+Sprężarki śrubowe
+
+Dwie śruby obracają się względem siebie, zmniejszając objętość powietrza.
+
+Charakteryzują się wysoką efektywnością i niskim poziomem hałasu.
+
+Budowa sprężarki śrubowej
+
+Zespół śrubowy (wirniki śrubowe),
+
+Układ chłodzenia,
+
+Układ smarowania,
+
+Silnik napędowy,
+
+Filtr powietrza,
+
+Separator oleju.
+
+Zespół śrubowy
+Zespół składa się z dwóch wirników (śrub) o precyzyjnie dobranych profilach, które obracając się, sprężają powietrze w komorze roboczej.
+
+Sprężarka łopatkowa – zasada działania
+Sprężarka łopatkowa to urządzenie wyporowe, w którym sprężanie gazu odbywa się za pomocą wirnika wyposażonego w promieniowo przesuwające się łopatki. Wirnik obraca się wewnątrz mimośrodowego statora (obudowy), a łopatki, wysuwając się i chowając w rowkach wirnika, tworzą komory o zmiennej objętości.
+
+Zasada działania:
+Zasysanie powietrza – podczas obrotu wirnika łopatki tworzą przestrzenie o zwiększającej się objętości, co powoduje zasysanie powietrza.
+Sprężanie – w miarę obrotu wirnika komory z powietrzem zmniejszają swoją objętość, co powoduje wzrost ciśnienia.
+Wydmuch sprężonego powietrza – sprężone powietrze opuszcza sprężarkę przez zawór wylotowy.
+Sprężarki łopatkowe są często stosowane w przemyśle, ponieważ zapewniają stabilne ciśnienie i są bardzo trwałe.
+
+Sprężarka mimośrodowa – zasada działania
+Sprężarka mimośrodowa jest odmianą sprężarki łopatkowej, w której wirnik obraca się mimośrodowo wewnątrz obudowy, co powoduje cykl zasysania, sprężania i tłoczenia powietrza.
+
+Główne elementy:
+
+Wirnik z łopatkami – zamontowany ekscentrycznie w obudowie.
+Obudowa (stator) – cylindryczna, w której wirnik wykonuje obrót.
+Łopatki przesuwne – utrzymują szczelność komór sprężania.
+Działanie:
+
+Powietrze jest zasysane do komory o większej objętości.
+W trakcie obrotu objętość zmniejsza się, co prowadzi do wzrostu ciśnienia.
+Sprężone powietrze jest wypychane do układu.
+Mimośrodowe sprężarki łopatkowe stosuje się w narzędziach pneumatycznych, maszynach przemysłowych i systemach hamulcowych.
+
+Sprężarki krzywkowe typu Roots – zasada działania
+Sprężarka Roots’a jest wyporową sprężarką krzywkową składającą się z dwóch wirników o specjalnym kształcie (tzw. krzywki). Obracają się one synchronicznie w przeciwnych kierunkach, przesuwając powietrze z komory wlotowej do wylotu bez zmiany jego objętości w trakcie przemieszczania.
+
+Działanie:
+
+Powietrze dostaje się do przestrzeni między wirnikami i obudową.
+Wirniki przesuwają powietrze w stronę wylotu, nie sprężając go bezpośrednio.
+Sprężanie odbywa się w kolejnym etapie, gdy powietrze zostaje skompresowane przez dalsze elementy systemu.
+Sprężarki Roots’a stosowane są w systemach doładowania silników spalinowych i w przemyśle.
+
+Zasada działania sprężarki przepływowej osiowej
+Sprężarka przepływowa osiowa to urządzenie dynamiczne, w którym sprężanie powietrza odbywa się wzdłuż osi wirnika dzięki układowi wirujących i nieruchomych łopatek.
+
+Etapy działania:
+
+Wirnik – obracające się łopatki wirnika przyspieszają przepływ powietrza, zwiększając jego energię kinetyczną.
+Stojan – nieruchome łopatki stojana zamieniają część energii kinetycznej na ciśnienie.
+Kilka stopni sprężania – powietrze przechodzi przez kilka par wirnik-stojan, co stopniowo zwiększa jego ciśnienie.
+Sprężarki osiowe stosowane są głównie w silnikach odrzutowych i turbinach gazowych.
+
+Zasada działania sprężarki przepływowej promieniowej
+Sprężarka przepływowa promieniowa, znana też jako sprężarka odśrodkowa, działa poprzez przyspieszanie powietrza na wirniku i jego późniejsze zwolnienie w dyfuzorze, co powoduje wzrost ciśnienia.
+
+Działanie:
+
+Powietrze wpływa do wirnika i zostaje rozpędzone przez obracające się łopatki.
+Siła odśrodkowa wypycha powietrze na zewnątrz.
+Powietrze przechodzi do dyfuzora, gdzie jego prędkość maleje, a ciśnienie wzrasta.
+Stosowana w turbinach gazowych i sprężarkach klimatyzacji.
+
+Co to jest reduktor i jak działa?
+Reduktor to urządzenie stosowane do zmniejszania ciśnienia gazu lub sprężonego powietrza do wymaganego poziomu.
+
+Działanie:
+
+Składa się z zaworu sterującego, który reguluje przepływ gazu.
+Wewnętrzna membrana kontroluje otwarcie zaworu, utrzymując stałe wyjściowe ciśnienie.
+Reduktory stosuje się między sprężarką a siecią pneumatyczną w celu ochrony narzędzi i układów.
+
+Filtr sprężonego powietrza – po co się stosuje?
+Filtr sprężonego powietrza usuwa zanieczyszczenia (pył, wilgoć, oleje) z powietrza w systemach pneumatycznych. Jest kluczowy dla poprawnej pracy urządzeń i przedłuża ich trwałość.
+
+Zawór redukcyjny – zastosowanie
+Zawór redukcyjny obniża ciśnienie powietrza do poziomu bezpiecznego dla narzędzi i układów pneumatycznych. Stosuje się go między sprężarką a siecią.
+
+Smarownica powietrza – działanie i znaczenie
+Smarownica powietrza dozuje niewielkie ilości oleju do strumienia sprężonego powietrza, co zmniejsza tarcie i zużycie narzędzi pneumatycznych. Stosuje się ją na końcu układu, aby nie zatykała filtrów.
+
+Zespół filtrująco-redukujący (filtro-reduktor)
+Jest to połączenie filtra i reduktora, które jednocześnie oczyszcza i stabilizuje ciśnienie sprężonego powietrza.
+
+Smarowniczka do narzędzi pneumatycznych
+Jest niezbędna do prawidłowego smarowania narzędzi pneumatycznych, co zapewnia ich długą żywotność.
+
+Siłowniki pneumatyczne – jednostronne i dwustronne
+Jednostronne – działają tylko w jednym kierunku, powrót następuje sprężyną.
+Dwustronne – działają w obu kierunkach pod wpływem sprężonego powietrza.
+
+Rodzaje siłowników i ich zasady działania
+Siłowniki pneumatyczne to urządzenia przekształcające energię sprężonego powietrza na ruch mechaniczny. Można je podzielić na kilka kategorii:
+
+Siłowniki tłokowe
+
+Jednostronnego działania – ruch roboczy odbywa się w jednym kierunku dzięki sprężonemu powietrzu, a powrót odbywa się za pomocą sprężyny.
+Dwustronnego działania – sprężone powietrze działa na tłok w obu kierunkach, pozwalając na ruch w obu stronach.
+Siłowniki beztłoczyskowe
+
+Magnetyczne – ruch tłoka przenoszony jest na zewnętrzny element za pomocą sprzężenia magnetycznego.
+Z pasem stalowym – siła przekazywana jest za pomocą stalowego paska połączonego z tłokiem.
+Siłowniki obrotowe
+
+Zamieniają energię sprężonego powietrza na ruch obrotowy zamiast liniowego.
+Siłowniki membranowe i mieszkowe
+
+Membranowe – wykorzystują elastyczną membranę do ruchu.
+Mieszkowe – zamiast tłoka używają elastycznego mieszka, który zmienia objętość pod wpływem powietrza.
+Muskuły pneumatyczne
+
+Elastyczne rurki rozszerzające się pod wpływem powietrza, generujące ruch.
+Siłownik dwustronnego działania – budowa i rozpoznanie
+Składa się z:
+
+Cylindra,
+Tłoka z tłoczyskiem,
+Uszczelek,
+Komór doprowadzających powietrze.
+Jak go rozpoznać?
+
+Ma dwa przyłącza powietrzne (jedno na każdym końcu).
+Siłownik jednostronnego działania – budowa i rozpoznanie
+Składa się z:
+
+Cylindra,
+Tłoka z tłoczyskiem,
+Sprężyny powrotnej.
+Jak go rozpoznać?
+
+Posiada tylko jedno przyłącze powietrzne i sprężynę powrotną.
+Zawór 5/2 – zasada działania
+Jest to zawór sterujący ruchem siłownika dwustronnego działania.
+
+5 portów:
+
+Wejście powietrza
+Dwa wyjścia na siłownik
+Dwa wyloty
+2 pozycje:
+
+W jednej pozycji tłok przesuwa się w jedną stronę.
+W drugiej pozycji tłok cofa się.
+Sterowanie odbywa się elektrycznie lub pneumatycznie.
+
+Zawór 3/2 – zasada działania
+Stosowany do siłowników jednostronnego działania.
+
+3 porty:
+
+Wejście powietrza
+Wyjście do siłownika
+Wylot powietrza
+2 pozycje:
+
+W jednej powietrze podawane jest do siłownika.
+W drugiej powietrze jest uwalniane, a tłok wraca sprężyną.
+Siłownik dwustronnego działania z dwustronnym tłoczyskiem
+Działa tak samo jak standardowy siłownik dwustronnego działania, ale ma tłoczysko po obu stronach tłoka. Powietrze działa na tłok symetrycznie, co pozwala na lepszą stabilność ruchu.
+
+Siłownik dwukomorowy – budowa i ilość pozycji
+Składa się z dwóch oddzielnych komór powietrznych, co pozwala na bardziej precyzyjne sterowanie ruchem.
+
+Zwykle ma 2 pozycje robocze, ale może mieć więcej w wersjach wielopozycyjnych.
+Siłowniki beztłoczyskowe – zasada działania
+Nie mają tłoczyska – ruch przenoszony jest magnetycznie lub mechanicznie na zewnętrzny element.
+
+Siłownik membranowy – zasada działania
+Elastyczna membrana rozciąga się pod wpływem ciśnienia, wywołując ruch liniowy.
+
+Siłownik mieszkowy z poduszką powietrzną
+Posiada elastyczny mieszek, który rozszerza się pod wpływem powietrza, generując ruch.
+
+Siłownik cięgnowy – budowa i zasada działania
+Siła przekazywana jest poprzez linkę lub cięgno. Stosowany w układach o ograniczonej przestrzeni.
+
+Siłownik dwustronnego działania obrotowy – zasada działania
+Zamiast ruchu liniowego generuje ruch obrotowy wokół osi. Stosowany np. w obrabiarkach CNC.
+
+Siłownik wahadłowy – budowa i działanie
+Obraca się w ograniczonym zakresie kątowym (np. 90° lub 180°). Posiada dwa wloty powietrza sterujące ruchem.
+
+Siłownik ze sprzężeniem magnetycznym
+Posiada wewnętrzny tłok z magnesem, który przyciąga zewnętrzny element. Powietrze przesuwa tłok, a magnes przenosi siłę na zewnętrzną część.
+
+Muskuł pneumatyczny – zasada działania i budowa
+To elastyczna rurka (zwykle pleciona), która rozszerza się, skracając swoją długość, generując ruch.
+
+Jak wyznaczyć siłę pchającą siłownika?
+Siła = ciśnienie × powierzchnia tłoka
+F = P × A
+
+Silnik pneumatyczny krokowy – definicja, zasada działania i budowa
+Działa jak elektryczny silnik krokowy, ale zamiast prądu wykorzystuje impulsy sprężonego powietrza.
+
+Silnik turbinowy – zasada działania i budowa
+Składa się z wirnika z łopatkami.
+Powietrze napędza wirnik, generując moment obrotowy.
+Inne silniki pneumatyczne – definicje i budowa
+Łopatkowe – wirnik z ruchomymi łopatkami rozszerza się i kurczy pod wpływem powietrza.
+Tłokowe – wykorzystują ruch tłoków do generowania mocy.
+Elementy sterujące pneumatyczne
+Zawory sterujące – 5/2, 3/2, dławiące, zwrotne.
+Siłowniki – jednostronne, dwustronne, beztłoczyskowe.
+Regulatory ciśnienia – reduktory, zawory bezpieczeństwa.
+
+Zawory rozdzielające – definicja, cechy i zadania
+Definicja:
+Zawory rozdzielające to elementy sterujące przepływem sprężonego powietrza w układach pneumatycznych. Ich głównym zadaniem jest kierowanie powietrza do odpowiednich odbiorników (np. siłowników pneumatycznych).
+
+Cechy zaworów rozdzielających:
+Posiadają określoną liczbę dróg przepływu (np. 2, 3, 4, 5)
+Mogą mieć różne pozycje pracy (np. 2 lub 3)
+Są sterowane na różne sposoby: mechanicznie, pneumatycznie, elektrycznie
+Występują w wersjach monostabilnych i bistabilnych
+Zadania zaworów rozdzielających:
+Sterowanie ruchem siłowników pneumatycznych
+Odcinanie lub zmiana kierunku przepływu powietrza
+Regulacja ciśnienia i przepływu
+Zawory zwrotne
+Definicja:
+Zawory zwrotne pozwalają na przepływ powietrza tylko w jednym kierunku, blokując przepływ wsteczny.
+
+Działanie:
+Wewnątrz zaworu znajduje się klapa, kulka lub stożek dociskany sprężyną. Gdy powietrze płynie we właściwym kierunku, element się podnosi. W przypadku przepływu wstecznego element zamyka drogę powietrza.
+
+Zastosowanie:
+Zapobieganie cofaniu się powietrza w układach pneumatycznych
+Ochrona sprężarek przed nagłymi spadkami ciśnienia
+Zawory szybkiego spustu
+Definicja:
+Zawór szybkiego spustu umożliwia szybkie opróżnienie powietrza z siłownika, przyspieszając jego ruch powrotny.
+
+Działanie:
+Podczas tłoczenia powietrza do siłownika zawór jest zamknięty.
+Gdy dopływ powietrza zostaje przerwany, zawór szybko wypuszcza powietrze z siłownika, skracając czas reakcji.
+Zastosowanie:
+Przyspieszanie działania siłowników
+Redukcja opóźnień w układzie
+Zawory odcinające
+Definicja:
+Służą do całkowitego odcięcia przepływu powietrza w danym obwodzie.
+
+Działanie:
+Mają ręczne lub automatyczne sterowanie, które zamyka dopływ powietrza, zapobiegając dalszej pracy układu.
+
+Zastosowanie:
+Zatrzymanie działania układu pneumatycznego
+Bezpieczeństwo pracy
+Zawory logiczne
+Definicja:
+Zawory logiczne stosowane są w układach sterowania pneumatycznego do realizacji funkcji logicznych (AND, OR, NOT).
+
+Działanie:
+Zawór OR – umożliwia przepływ powietrza, jeśli co najmniej jedno wejście jest aktywne.
+Zawór AND – przepływ powietrza następuje tylko wtedy, gdy oba wejścia są aktywne.
+Zastosowanie:
+Pneumatyczne układy sterowania bez użycia elektroniki
+Liczba dróg przepływu w zaworach
+Zawory oznacza się liczbą dróg przepływu oraz liczbą pozycji.
+
+2/2 – dwa otwory, dwie pozycje (np. zawór kulowy)
+3/2 – trzy otwory, dwie pozycje
+5/2 – pięć otworów, dwie pozycje
+Zawór 5/2 – zasada działania
+5 dróg przepływu
+2 pozycje
+Steruje siłownikiem dwustronnego działania
+Może być sterowany pneumatycznie, elektrycznie, mechanicznie
+Zawór 3/2 – zasada działania
+3 drogi przepływu
+2 pozycje
+Stosowany do siłowników jednostronnego działania
+Zamienia powietrze wlotowe na ruch siłownika
+Jak czytać zawory pneumatyczne?
+Liczba kwadratów = liczba pozycji
+Strzałki wskazują kierunek przepływu powietrza
+Sprężyna oznacza powrót wymuszony
+Kółko z krzyżykiem oznacza wylot powietrza
+Sposoby sterowania zaworami
+Mechaniczne – przyciski, dźwignie, rolki
+Elektryczne – cewki elektromagnetyczne
+Pneumatyczne – ciśnienie powietrza
+Manualne – ręczne włączanie i wyłączanie
+Powrót wymuszony sprężyną lub powietrzem
+Sprężyna – po zaniku sterowania zawór wraca do pozycji początkowej
+Powietrze – zawór wraca pod wpływem ciśnienia
+Sterowanie zaworami – różne metody
+Trzpień – ręczne wciskanie
+Przycisk – mechaniczne naciśnięcie
+Krańcówka – automatyczne sterowanie ruchem
+Dźwignia – sterowanie mechaniczne
+Elektryczne cewką – zasilanie elektryczne otwiera zawór
+Zawór kulowy 2/2 – działanie
+Najprostszy zawór
+Dwa otwory (wejście i wyjście)
+Obrót kuli wewnątrz zaworu otwiera lub zamyka przepływ
+Zawór odcinający pneumatyczny
+Służy do całkowitego zamknięcia przepływu powietrza w układzie
+Zawór sterowany elektrycznie 2/2
+Zasilenie cewki zamyka zawór
+Odcięcie zasilania przywraca otwarcie
+Stosowany np. w pralkach
+Zawór suwakowy sterowany elektrycznie 2/2
+Normalnie zamknięty (NC) – otwiera się po podaniu napięcia
+Normalnie otwarty (NO) – zamyka się po podaniu napięcia
+NC (Normal Close) i NO (Normal Open)
+NC – domyślnie zamknięty, otwiera się po sterowaniu
+NO – domyślnie otwarty, zamyka się po sterowaniu
+Monostabilny vs Bistabilny
+Monostabilny – powraca po zaniku sterowania
+Bistabilny – pozostaje w ostatniej pozycji
+Zawór impulsowy
+Przełącza się po krótkim impulsie i pozostaje w tej pozycji</p>
+                <button class="toggle-btn">Schowaj</button>
+            </div>
+        </div>
+
+        <div class="material">
+            <h2 class="title">Tytuł 2</h2>
+            <div class="content">
+                <p>To jest treść materiału 2. Możesz dodać tutaj więcej informacji.</p>
+                <button class="toggle-btn">Schowaj</button>
+            </div>
+        </div>
+
+        <div class="material">
+            <h2 class="title">Tytuł 3</h2>
+            <div class="content">
+                <p>To jest treść materiału 3. Tutaj także możesz dodać treści związane z mechatroniką.</p>
+                <button class="toggle-btn">Schowaj</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Funkcja do rozwijania i zwijania treści
+        document.querySelectorAll('.title').forEach(title => {
+            title.addEventListener('click', () => {
+                const content = title.nextElementSibling;
+                const button = content.querySelector('.toggle-btn');
+                
+                // Sprawdź, czy treść jest rozwinięta
+                if (content.style.display === 'block') {
+                    content.style.display = 'none';
+                    button.textContent = 'Pokaż';
+                } else {
+                    content.style.display = 'block';
+                    button.textContent = 'Schowaj';
+                }
+            });
+        });
+
+        // Funkcja do schowania treści po kliknięciu przycisku "Schowaj"
+        document.querySelectorAll('.toggle-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const content = event.target.closest('.content');
+                const title = content.previousElementSibling;
+                
+                // Ukryj treść
+                content.style.display = 'none';
+                const button = content.querySelector('.toggle-btn');
+                button.textContent = 'Pokaż';
+            });
+        });
+    </script>
+</body>
+</html>
