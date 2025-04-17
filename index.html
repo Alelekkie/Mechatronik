@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Auto Refresh - 100 kart</title>
+  <title>Auto Refresh - 20 linków</title>
   <style>
     body {
       font-family: sans-serif;
@@ -11,17 +11,30 @@
       background: #111;
       color: #ffa500;
     }
-    input[type="text"], input[type="number"] {
+    .row {
+      display: flex;
+      margin-bottom: 5px;
+    }
+    input[type="text"] {
       width: 100%;
-      margin: 5px 0;
       padding: 8px;
       border-radius: 5px;
       border: none;
       box-sizing: border-box;
     }
-    button {
-      margin: 10px 5px 10px 0;
+    #refreshTime {
+      width: 100%;
       padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      box-sizing: border-box;
+    }
+    button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
       background: #ffa500;
       color: black;
       border: none;
@@ -39,24 +52,20 @@
   </style>
 </head>
 <body>
-  <h2>Auto Odświeżanie - 100 linków</h2>
+  <h2>Auto Odświeżanie - 20 linków</h2>
 
-  <label for="refreshRate">Czas odświeżania (w sekundach):</label>
-  <input type="number" id="refreshRate" value="10" min="1">
+  <label for="refreshTime">Czas odświeżania (sekundy):</label>
+  <input type="number" id="refreshTime" value="2" min="1">
 
   <div id="inputs"></div>
   <button onclick="start()">Start</button>
-  <button onclick="saveSettings()">Zapisz</button>
-  <button onclick="clearSettings()">Wyczyść</button>
-
   <div id="iframes"></div>
 
   <script>
-    const TOTAL_LINKS = 100;
     const inputsDiv = document.getElementById("inputs");
 
-    // Tworzenie 100 pól
-    for (let i = 0; i < TOTAL_LINKS; i++) {
+    // Dodaj 20 pól na linki
+    for (let i = 0; i < 20; i++) {
       const input = document.createElement("input");
       input.type = "text";
       input.placeholder = `Link ${i + 1}`;
@@ -64,67 +73,24 @@
       inputsDiv.appendChild(input);
     }
 
-    // Wczytywanie zapisanych danych
-    window.onload = () => {
-      const savedLinks = JSON.parse(localStorage.getItem("links")) || [];
-      const savedRefresh = localStorage.getItem("refreshRate");
-      
-      for (let i = 0; i < savedLinks.length; i++) {
-        const input = document.getElementById(`link${i}`);
-        if (input) input.value = savedLinks[i];
-      }
-      
-      if (savedRefresh) {
-        document.getElementById("refreshRate").value = savedRefresh;
-      }
-    };
-
-    // Funkcja startowa
     function start() {
+      const time = parseInt(document.getElementById("refreshTime").value.trim()) || 2;
       const container = document.getElementById("iframes");
-      container.innerHTML = "";
+      container.innerHTML = ""; // Wyczyść poprzednie
 
-      const refreshRate = parseInt(document.getElementById("refreshRate").value) * 1000;
-
-      for (let i = 0; i < TOTAL_LINKS; i++) {
-        const url = document.getElementById(`link${i}`).value;
+      for (let i = 0; i < 20; i++) {
+        const url = document.getElementById(`link${i}`).value.trim();
         if (url) {
           const iframe = document.createElement("iframe");
           iframe.src = url;
           iframe.id = `frame${i}`;
           container.appendChild(iframe);
 
-          // Odświeżanie z opóźnieniem startu
-          setTimeout(() => {
-            setInterval(() => {
-              const frame = document.getElementById(`frame${i}`);
-              if (frame) frame.src = frame.src;
-            }, refreshRate);
-          }, i * 100);
+          setInterval(() => {
+            const frame = document.getElementById(`frame${i}`);
+            if (frame) frame.src = frame.src;
+          }, time * 1000); // odświeżanie co X sekund
         }
-      }
-    }
-
-    // Zapis do localStorage
-    function saveSettings() {
-      const links = [];
-      for (let i = 0; i < TOTAL_LINKS; i++) {
-        links.push(document.getElementById(`link${i}`).value);
-      }
-      const refresh = document.getElementById("refreshRate").value;
-
-      localStorage.setItem("links", JSON.stringify(links));
-      localStorage.setItem("refreshRate", refresh);
-
-      alert("Ustawienia zapisane!");
-    }
-
-    // Wyczyść localStorage
-    function clearSettings() {
-      if (confirm("Czy na pewno chcesz usunąć wszystkie zapisane dane?")) {
-        localStorage.removeItem("links");
-        localStorage.removeItem("refreshRate");
-        location.reload();
       }
     }
   </script>
