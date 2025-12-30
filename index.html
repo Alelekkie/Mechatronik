@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>System urlopowy - Logowanie</title>
+<title>System urlopowy</title>
 <style>
 body, html {
   height: 100%;
@@ -20,9 +20,7 @@ body, html {
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
   text-align: center;
 }
-#loginDiv h2 {
-  margin-bottom: 20px;
-}
+#loginDiv h2 { margin-bottom: 20px; }
 input {
   width: 250px;
   padding: 10px;
@@ -54,6 +52,10 @@ button:hover { background: #0056b3; }
   margin-top: 10px;
   font-weight: bold;
 }
+#successDiv {
+  display: none;
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -67,13 +69,17 @@ button:hover { background: #0056b3; }
   <div id="errorMsg"></div>
 </div>
 
+<div id="successDiv">
+  <h1>Udało się! Zalogowano poprawnie.</h1>
+</div>
+
 <!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-firestore-compat.js"></script>
 
 <script>
-// INICJALIZACJA FIREBASE
+// --- INICJALIZACJA FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
   authDomain: "urlopy-ee985.firebaseapp.com",
@@ -88,37 +94,41 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// GLOBALNE ZMIENNE
+// --- ZMIENNE GLOBALNE ---
 let currentUser = null;
 
-// POKAŻ/UKRYJ HASŁO
+// --- POKAŻ/UKRYJ HASŁO ---
 function togglePassword(){
   const pass = document.getElementById("password");
   pass.type = (pass.type === "password") ? "text" : "password";
 }
 
-// LOGOWANIE
+// --- LOGOWANIE ---
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const errorMsg = document.getElementById("errorMsg");
   errorMsg.innerText = "";
-  
+
   if(!email || !password){
     errorMsg.innerText = "Podaj email i hasło!";
     return;
   }
 
   try {
-    const userCred = await auth.signInWithEmailAndPassword(email, password);
+    const userCred = await auth.signInWithEmailAndPassword(email,password);
     currentUser = userCred.user;
 
+    // Sprawdzenie roli w Firestore
     const docSnap = await db.collection("users").doc(currentUser.uid).get();
     let role = "employee"; 
     if(docSnap.exists() && docSnap.data().role === "admin") role = "admin";
 
-    // Przekierowanie na prostą stronę sukcesu
-    window.location.href = `success.html?role=${role}`;
+    // Ukryj loginDiv i pokaż successDiv
+    document.getElementById("loginDiv").style.display = "none";
+    document.getElementById("successDiv").style.display = "block";
+
+    console.log("Zalogowano jako:", currentUser.email, "rola:", role);
 
   } catch(err) {
     if(err.code === "auth/user-not-found") errorMsg.innerText = "Nie znaleziono użytkownika!";
@@ -127,13 +137,12 @@ async function login() {
   }
 }
 
-// AUTOMATYCZNE LOGOWANIE
+// --- AUTOMATYCZNE LOGOWANIE ---
 auth.onAuthStateChanged(user => {
   if(user){
     currentUser = user;
-    const errorMsg = document.getElementById("errorMsg");
-    errorMsg.style.color = "green";
-    errorMsg.innerText = "Już zalogowany: " + user.email;
+    document.getElementById("loginDiv").style.display = "none";
+    document.getElementById("successDiv").style.display = "block";
   }
 });
 </script>
