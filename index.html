@@ -5,26 +5,194 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>System Urlopowy - Firebase</title>
 <style>
-body,html{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-.container{max-width:900px;margin:auto;padding:10px;}
-#loginDiv,#adminDiv,#employeeDiv{display:flex;flex-direction:column;align-items:center;padding:20px;border-radius:10px;margin-top:20px;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: #000; /* całe tło na czarne */
+    color: white; /* tekst na biały, żeby było czytelnie */
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 10px;
+    background: black; /* tło samego kontenera ciemniejsze, ale nie czarne jak body */
+}#email {
+    width: 250px;
+    padding: 12px 15px;
+    border-radius: 25px;      /* ładnie zaokrąglone */
+    border: 2px solid #ff69b4; /* różowa ramka */
+    background: #000;         /* czarne tło wewnątrz */
+    color: white;             /* tekst wpisywany na biało */
+    font-size: 16px;
+    outline: none;            /* usuwa standardowy focus outline */
+}
+
+#email::placeholder {
+    color: #ff69b4;           /* różowy placeholder */
+    opacity: 1;                /* żeby kolor był wyraźny */
+}
+
+/* efekt po kliknięciu/focus */
+#email:focus {
+    border-color: #ff1493;    /* ciemniejszy różowy przy focusie */
+    box-shadow: 0 0 5px #ff1493;
+}
+
+    #password {
+    width: 250px;
+    padding: 12px 15px;
+    border-radius: 25px;      /* ładnie zaokrąglone */
+    border: 2px solid #ff69b4; /* różowa ramka */
+    background: #000;         /* czarne tło wewnątrz */
+    color: white;             /* tekst wpisywany na biało */
+    font-size: 16px;
+    outline: none;            /* usuwa standardowy focus outline */
+}
+
+#password::placeholder {
+    color: #ff69b4;           /* różowy placeholder */
+    opacity: 1;                /* żeby kolor był wyraźny */
+}
+
+/* efekt po kliknięciu/focus */
+#password:focus {
+    border-color: #ff1493;    /* ciemniejszy różowy przy focusie */
+    box-shadow: 0 0 5px #ff1493;
+}
+    
+    
+    #vacationDays {
+    width: 217px;
+    padding: 12px 15px;
+    border-radius: 25px;      /* ładnie zaokrąglone */
+    border: 2px solid #ff69b4; /* różowa ramka */
+    background: #000;         /* czarne tło wewnątrz */
+    color: white;             /* tekst wpisywany na biało */
+    font-size: 16px;
+    outline: none;            /* usuwa standardowy focus outline */
+}
+
+#vacationDays::placeholder {
+    color: #ff69b4;           /* różowy placeholder */
+    opacity: 1;                /* żeby kolor był wyraźny */
+}
+
+/* efekt po kliknięciu/focus */
+#vacationDays:focus {
+    border-color: #ff1493;    /* ciemniejszy różowy przy focusie */
+    box-shadow: 0 0 5px #ff1493;
+}
+    
+ #taskDays {
+    width: 217px;
+    padding: 12px 15px;
+    border-radius: 25px;      /* ładnie zaokrąglone */
+    border: 2px solid #ff69b4; /* różowa ramka */
+    background: #000;         /* czarne tło wewnątrz */
+    color: white;             /* tekst wpisywany na biało */
+    font-size: 16px;
+    outline: none;            /* usuwa standardowy focus outline */
+}
+
+#taskDays::placeholder {
+    color: #ff69b4;           /* różowy placeholder */
+    opacity: 1;                /* żeby kolor był wyraźny */
+}
+
+/* efekt po kliknięciu/focus */
+#taskDays:focus {
+    border-color: #ff1493;    /* ciemniejszy różowy przy focusie */
+    box-shadow: 0 0 5px #ff1493;
+}
+    
+    #employeeSelect {
+    width: 250px;
+    padding: 12px 15px;
+    border-radius: 25px;      /* ładnie zaokrąglone */
+    border: 2px solid #ff69b4; /* różowa ramka */
+    background: #000;         /* czarne tło wewnątrz */
+    color: white;             /* tekst wpisywany na biało */
+    font-size: 16px;
+    outline: none;            /* usuwa standardowy focus outline */
+}
+
+#employeeSelect::placeholder {
+    color: #ff69b4;           /* różowy placeholder */
+    opacity: 1;                /* żeby kolor był wyraźny */
+}
+
+/* efekt po kliknięciu/focus */
+#employeeSelect:focus {
+    border-color: #ff1493;    /* ciemniejszy różowy przy focusie */
+    box-shadow: 0 0 5px #ff1493;
+}
+   
+    
+     #leaveType {
+    width: 250px;
+    padding: 12px 15px;
+    border-radius: 25px;      /* ładnie zaokrąglone */
+    border: 2px solid #ff69b4; /* różowa ramka */
+    background: #000;         /* czarne tło wewnątrz */
+    color: white;             /* tekst wpisywany na biało */
+    font-size: 16px;
+    outline: none;            /* usuwa standardowy focus outline */
+}
+
+#leaveType::placeholder {
+    color: #ff69b4;           /* różowy placeholder */
+    opacity: 1;                /* żeby kolor był wyraźny */
+}
+
+/* efekt po kliknięciu/focus */
+#leaveType:focus {
+    border-color: #ff1493;    /* ciemniejszy różowy przy focusie */
+    box-shadow: 0 0 5px #ff1493;
+}
+    
+    
+  table button {
+  padding: 0;
+  margin: 0; /* opcjonalnie, żeby też marginesy zniknęły */
+  border: none; /* jeśli chcesz też usunąć obramowanie */
+  background: none; /* opcjonalnie, jeśli chcesz usunąć tło */
+}  
+ #monthLabel {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white; /* np. różowy */
+
+  padding: 5px 10px;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+#loginDiv,#adminDiv,#employeeDiv{display:flex;flex-direction:column;align-items:center;padding:20px;border-radius:10px;margin-top:20px;box-shadow:0 5px 15px rgba(0,0,0,0.2);background: black;}
+    
+  logoutBtn{padding:10px;margin-top:10px;width:90%;max-width:270px;border:none;border-radius:5px;background:hotpink;color:white;cursor:pointer;}
+logoutBtn:hover{background:DeepPink;transition: background 0.7s, border-color 0.7s, color 0.7s;}  
+    
 #adminDiv,#employeeDiv{display:none;min-height:80vh;width:90%;color:white;}
-#adminDiv{background:black;}
-#employeeDiv{background:#222;}
+    
+#adminDiv{background: black;}
+    
+#employeeDiv{background:black;}
 input,select{padding:10px;margin:5px 0;width:90%;max-width:250px;border-radius:5px;border:1px solid #aaa;}
-button{padding:10px;margin-top:10px;width:90%;max-width:270px;border:none;border-radius:5px;background:#007bff;color:white;cursor:pointer;}
-button:hover{background:#0056b3;}
+button{padding:10px;margin-top:10px;width:90%;max-width:270px;border:none;border-radius:5px;background:hotpink;color:white;cursor:pointer;}
+button:hover{background:DeepPink;transition: background 0.7s, border-color 0.7s, color 0.7s;}
 #errorMsg{color:red;font-weight:bold;margin-top:5px;}
 #calendarControls{display:flex;justify-content:space-between;width:100%;max-width:300px;margin-top:10px;}
 #calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px;width:100%;}
 .day{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #888;background:#222;}
 .selected{background:lightgreen;}
 table{border-collapse:collapse;width:100%;margin-top:10px;color:white;}
-table,th,td{border:1px solid white;padding:5px;text-align:center;}
-.approved{background:green !important;}
-.rejected{background:red !important;}
-#logoutBtn{margin-top:20px;width:150px;background:#ff4d4d;color:white;}
-#logoutBtn:hover{background:#cc0000;}
+table,th,td{padding:5px;text-align:center;}
+.approved{background:linear-gradient(90deg, #a8e6cf, #56ab2f, #379237); !important;}
+.rejected{background:linear-gradient(90deg, #ff9a9e, #f54ea2, #ff0066); !important;}
+
 @media(max-width:500px){input,select,button{width:100%;} #calendar{grid-template-columns:repeat(7,1fr);}}
 </style>
 </head>
@@ -59,15 +227,15 @@ table,th,td{border:1px solid white;padding:5px;text-align:center;}
   <!-- PRACOWNIK -->
   <div id="employeeDiv">
     <h2>PRACOWNIK</h2>
-    <div>Twoje dni: <span id="remainingTaskDays">0</span> zadaniowe, <span id="remainingVacationDays">0</span> wypoczynkowe</div>
+    <div>Twoje dni: <span id="remainingTaskDays">0</span> URLOP NA ŻĄDANIE, <span id="remainingVacationDays">0</span> URLOP WYPOCZYNKOWY</div>
     <div id="calendarControls">
       <button onclick="changeMonth(-1)">&lt; Poprzedni</button>
       <span id="monthLabel"></span>
       <button onclick="changeMonth(1)">Następny &gt;</button>
     </div>
     <select id="leaveType">
-      <option value="zadaniowy">Zadaniowy</option>
-      <option value="wypoczynkowy">Wypoczynkowy</option>
+      <option value="zadaniowy">URLOP NA ŻĄDANIE</option>
+      <option value="wypoczynkowy">URLOP WYPOCZYNKOWY</option>
     </select>
     <div id="calendar"></div>
     <button onclick="sendVacation()">Wyślij wniosek</button>
@@ -192,7 +360,7 @@ async function loadAdminRequests(){
       await db.collection("vacationRequests").doc(doc.id).update({status:"zatwierdzony"});
       loadAdminRequests();
     };
-    const btnRej=document.createElement("button"); btnRej.innerText="Odrzuć"; btnRej.style.marginLeft="5px"; 
+    const btnRej=document.createElement("button"); btnRej.innerText="Odrzuć"; btnRej.style.marginLeft="0px"; 
     btnRej.onclick=async ()=>{
       await db.collection("vacationRequests").doc(doc.id).update({status:"odrzucony"});
       loadAdminRequests();
