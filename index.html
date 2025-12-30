@@ -2,20 +2,21 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Logowanie</title>
+<title>System urlopowy</title>
 <style>
-body, html {height:100%; margin:0; font-family:Arial; display:flex; justify-content:center; align-items:center; background:#f5f5f5;}
-#loginDiv {display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:white; padding:30px 40px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+body, html {height:100%; margin:0; font-family:Arial; display:flex; justify-content:center; align-items:flex-start; background:#f5f5f5;}
+#loginDiv {display:flex; flex-direction:column; align-items:center; justify-content:center; margin-top:50px; background:white; padding:30px 40px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.2);}
 input{width:250px;padding:10px;margin:10px 0;border:1px solid #aaa;border-radius:5px;}
 button{width:270px;padding:10px;margin-top:10px;background:#007bff;color:white;border:none;border-radius:5px;cursor:pointer;}
 button:hover{background:#0056b3;}
 #errorMsg{color:red;margin-top:10px;font-weight:bold;}
-#loadingMsg{color:green; margin-top:10px; font-weight:bold;}
-.panel{display:none; height:100%; width:100%; flex-direction:column; justify-content:center; align-items:center; font-size:2em; color:white;}
-#adminPanel{background:black; display:flex;}
-#employeePanel{background:darkblue; display:flex;}
-#logoutBtn{margin-top:20px;width:150px;padding:10px;background:#ff4d4d;}
-#logoutBtn:hover{background:#cc0000;}
+#loadingMsg{color:green;margin-top:10px;font-weight:bold;}
+.panel{display:none; flex-direction:column; align-items:center; margin-top:20px; width:100%;}
+#calendar{display:grid; grid-template-columns:repeat(7,40px); gap:5px; margin-top:10px;}
+.day{width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid #888;}
+.selected{background:lightgreen;}
+table{border-collapse:collapse;margin-top:10px;}
+table, th, td{border:1px solid #000; padding:5px;}
 </style>
 </head>
 <body>
@@ -30,23 +31,56 @@ button:hover{background:#0056b3;}
   <div id="loadingMsg"></div>
 </div>
 
+<!-- Panel Admina -->
 <div id="adminPanel" class="panel">
-  ADMIN
-  <button id="logoutBtn" onclick="logout()">Wyloguj</button>
+  <h2>ADMIN</h2>
+  <h3>Wnioski urlopowe:</h3>
+  <table id="adminTable">
+    <tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>
+  </table>
+  <button onclick="logout()">Wyloguj</button>
 </div>
 
+<!-- Panel Pracownika -->
 <div id="employeePanel" class="panel">
-  PRACOWNIK
-  <button id="logoutBtn" onclick="logout()">Wyloguj</button>
+  <h2>PRACOWNIK</h2>
+  <h3>Wybierz dni urlopu:</h3>
+  <div id="calendar"></div>
+  <button onclick="sendVacation()">Wyślij wniosek</button>
+  <h3>Twoje wnioski:</h3>
+  <table id="employeeTable">
+    <tr><th>Dni</th><th>Status</th></tr>
+  </table>
+  <button onclick="logout()">Wyloguj</button>
 </div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Dane użytkowników zapisane w kodzie
+// --- KONFIGURACJA FIREBASE ---
+const firebaseConfig = {
+  apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
+  authDomain: "urlopy-ee985.firebaseapp.com",
+  projectId: "urlopy-ee985",
+  storageBucket: "urlopy-ee985.appspot.com",
+  messagingSenderId: "1054650388220",
+  appId: "1:1054650388220:web:3545e54d9305db91e49179"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// --- UŻYTKOWNICY W KODZIE ---
 const users = [
   {email:"pawel.marczewski@interia.pl", password:"0909", role:"admin"},
   {email:"pracownik@example.com", password:"1234", role:"employee"}
 ];
 
+let currentUser = null;
+let selectedDays = [];
+
+// --- LOGOWANIE ---
 function togglePassword(){
   const pass = document.getElementById("password");
   pass.type = pass.type==="password" ? "text" : "password";
@@ -57,39 +91,94 @@ function login(){
   const password = document.getElementById("password").value.trim();
   const errorMsg = document.getElementById("errorMsg");
   const loadingMsg = document.getElementById("loadingMsg");
-  errorMsg.innerText="";
-  loadingMsg.innerText="";
+  errorMsg.innerText=""; loadingMsg.innerText="";
 
-  if(!email || !password){
-    errorMsg.innerText="Wpisz email i hasło!";
-    return;
-  }
+  if(!email || !password){ errorMsg.innerText="Wpisz email i hasło!"; return; }
 
   loadingMsg.innerText="Ładowanie...";
-
   setTimeout(()=>{
-    const user = users.find(u => u.email===email && u.password===password);
+    const user = users.find(u=>u.email===email && u.password===password);
     if(user){
+      currentUser=user;
       document.getElementById("loginDiv").style.display="none";
-      if(user.role==="admin"){
-        document.getElementById("adminPanel").style.display="flex";
-      } else if(user.role==="employee"){
-        document.getElementById("employeePanel").style.display="flex";
-      }
-    } else {
-      errorMsg.innerText="Błędne dane logowania!";
-    }
+      if(user.role==="admin"){ document.getElementById("adminPanel").style.display="flex"; loadAdminRequests(); }
+      else if(user.role==="employee"){ document.getElementById("employeePanel").style.display="flex"; buildCalendar(); loadEmployeeRequests(); }
+    } else { errorMsg.innerText="Błędne dane logowania!"; }
     loadingMsg.innerText="";
-  }, 1000); // 1s opóźnienie żeby pokazać "Ładowanie..."
+  },500);
 }
 
+// --- WYLOGOWANIE ---
 function logout(){
+  currentUser=null;
+  selectedDays=[];
   document.getElementById("loginDiv").style.display="flex";
   document.getElementById("adminPanel").style.display="none";
   document.getElementById("employeePanel").style.display="none";
   document.getElementById("password").value="";
   document.getElementById("errorMsg").innerText="";
   document.getElementById("loadingMsg").innerText="";
+}
+
+// --- KALENDARZ PRACOWNIKA ---
+function buildCalendar(){
+  const cal = document.getElementById("calendar");
+  cal.innerHTML="";
+  for(let i=1;i<=31;i++){
+    const day=document.createElement("div");
+    day.className="day"; day.innerText=i;
+    day.onclick=()=>{
+      if(selectedDays.includes(i)){ selectedDays=selectedDays.filter(d=>d!==i); day.classList.remove("selected"); }
+      else{ selectedDays.push(i); day.classList.add("selected"); }
+    };
+    cal.appendChild(day);
+  }
+}
+
+// --- WYSYŁANIE WNIOSKU ---
+function sendVacation(){
+  if(selectedDays.length===0){ alert("Zaznacz dni!"); return; }
+  db.collection("vacationRequests").add({
+    user:currentUser.email,
+    days:selectedDays,
+    status:"pending"
+  }).then(()=>{ selectedDays=[]; buildCalendar(); loadEmployeeRequests(); });
+}
+
+// --- WYŚWIETLANIE WNIOSKÓW PRACOWNIKA ---
+function loadEmployeeRequests(){
+  const table = document.getElementById("employeeTable");
+  table.innerHTML="<tr><th>Dni</th><th>Status</th></tr>";
+  db.collection("vacationRequests").where("user","==",currentUser.email)
+    .get().then(snapshot=>{
+      snapshot.forEach(doc=>{
+        const d=doc.data();
+        const row=table.insertRow();
+        row.insertCell(0).innerText=d.days.join(", ");
+        row.insertCell(1).innerText=d.status;
+      });
+    });
+}
+
+// --- WYŚWIETLANIE WNIOSKÓW ADMINA ---
+function loadAdminRequests(){
+  const table = document.getElementById("adminTable");
+  table.innerHTML="<tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>";
+  db.collection("vacationRequests").get().then(snapshot=>{
+    snapshot.forEach(docSnap=>{
+      const d = docSnap.data();
+      const row = table.insertRow();
+      row.insertCell(0).innerText=d.user;
+      row.insertCell(1).innerText=d.days.join(", ");
+      row.insertCell(2).innerText=d.status;
+      const action=row.insertCell(3);
+      const approve=document.createElement("button"); approve.innerText="Zatwierdź";
+      approve.onclick=()=>{ db.collection("vacationRequests").doc(docSnap.id).update({status:"approved"}).then(loadAdminRequests); };
+      const reject=document.createElement("button"); reject.innerText="Odrzuć";
+      reject.onclick=()=>{ db.collection("vacationRequests").doc(docSnap.id).update({status:"rejected"}).then(loadAdminRequests); };
+      action.appendChild(approve); action.appendChild(reject);
+    });
+  });
 }
 </script>
 
