@@ -2,6 +2,11 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#ff69b4">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>System Urlopowy - Firebase</title>
 <style>
@@ -11,6 +16,12 @@ body, html {
     font-family: Arial, sans-serif;
     background: #000; /* całe tło na czarne */
     color: white; /* tekst na biały, żeby było czytelnie */
+}
+/* dni zajęte / zatwierdzone */
+.taken {
+  background: #ff69b4 !important;
+  color: white;
+  cursor: not-allowed;
 }
 
 .container {
@@ -213,7 +224,7 @@ table,th,td{padding:5px;text-align:center;}
     <h2>ADMIN</h2>
     <h3>Przypisz dni urlopowe:</h3>
     <select id="employeeSelect"></select>
-    <input type="number" id="taskDays" placeholder="Dni zadaniowe">
+    <input type="number" id="taskDays" placeholder="Dni na żądanie">
     <input type="number" id="vacationDays" placeholder="Dni wypoczynkowe">
     <button onclick="setEmployeeDays()">Zapisz</button>
 
@@ -377,21 +388,53 @@ async function loadEmployeeDays(){
   document.getElementById("remainingVacationDays").innerText=days.vacation;
   return days;
 }
+async function getTakenDays() {
+  const taken = [];
+  const snapshot = await db.collection("vacationRequests")
+    .where("status", "==", "zatwierdzony")
+    .where("month", "==", currentMonth)
+    .where("year", "==", currentYear)
+    .get();
 
-function buildCalendar(){
+  snapshot.forEach(doc => {
+    taken.push(...doc.data().days);
+  });
+
+  return taken;
+}
+
+async function buildCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="";
   const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
   document.getElementById("monthLabel").innerText=monthNames[currentMonth]+" "+currentYear;
+
+  const takenDays = await getTakenDays();
+
   for(let i=1;i<=daysInMonth;i++){
-    const day=document.createElement("div"); day.className="day"; day.innerText=i;
-    day.onclick=()=>{ 
-      if(selectedDays.includes(i)){ selectedDays=selectedDays.filter(d=>d!==i); day.classList.remove("selected"); }
-      else{ selectedDays.push(i); day.classList.add("selected"); }
-    };
+    const day=document.createElement("div");
+    day.className="day";
+    day.innerText=i;
+
+    // 🔥 jeśli dzień jest już zajęty
+    if(takenDays.includes(i)){
+      day.classList.add("taken");
+    } else {
+      day.onclick=()=>{ 
+        if(selectedDays.includes(i)){
+          selectedDays=selectedDays.filter(d=>d!==i);
+          day.classList.remove("selected");
+        } else {
+          selectedDays.push(i);
+          day.classList.add("selected");
+        }
+      };
+    }
+
     cal.appendChild(day);
   }
 }
+
 
 function changeMonth(delta){
   currentMonth+=delta;
@@ -405,9 +448,9 @@ async function sendVacation(){
   const type=document.getElementById("leaveType").value;
   const daysData = await db.collection("employees").doc(currentUser.email).get();
   const days = daysData.data();
-  if(type==="zadaniowy" && selectedDays.length>days.task){alert("Brak wystarczającej liczby dni zadaniowych!"); return;}
+  if(type==="na żądanie" && selectedDays.length>days.task){alert("Brak wystarczającej liczby dni na żądanie!"); return;}
   if(type==="wypoczynkowy" && selectedDays.length>days.vacation){alert("Brak wystarczającej liczby dni wypoczynkowych!"); return;}
-  if(type==="zadaniowy") days.task-=selectedDays.length;
+  if(type==="na żądanie") days.task-=selectedDays.length;
   else days.vacation-=selectedDays.length;
   await db.collection("employees").doc(currentUser.email).set(days);
 
