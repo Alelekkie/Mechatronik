@@ -2,62 +2,78 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>System urlopowy</title>
+<title>System urlopowy - Logowanie</title>
 <style>
-body { font-family: Arial; margin: 20px; background: #f5f5f5; }
-input, button { margin: 5px; padding: 5px; }
-.hidden { display: none; }
-table { border-collapse: collapse; margin-top: 10px; }
-table, th, td { border: 1px solid #000; padding: 5px; }
-#calendar { display: grid; grid-template-columns: repeat(7, 40px); gap: 5px; margin-top: 10px; }
-.day { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #888; }
-.selected { background: lightgreen; }
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#loginDiv {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  text-align: center;
+}
+#loginDiv h2 {
+  margin-bottom: 20px;
+}
+input {
+  width: 250px;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+}
+button {
+  width: 270px;
+  padding: 10px;
+  margin-top: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover { background: #0056b3; }
+#showPassword {
+  margin-top: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: #007bff;
+  background: none;
+  border: none;
+}
+#errorMsg {
+  color: red;
+  margin-top: 10px;
+  font-weight: bold;
+}
 </style>
 </head>
 <body>
 
-<h2>System urlopowy</h2>
-
 <div id="loginDiv">
-  <h3>Logowanie</h3>
+  <h2>Logowanie do systemu urlopowego</h2>
   <input type="email" id="email" placeholder="Email"><br>
   <input type="password" id="password" placeholder="Hasło"><br>
-  <button onclick="login()">Zaloguj</button>
+  <button onclick="login()">Zaloguj</button><br>
+  <button id="showPassword" onclick="togglePassword()">Pokaż/Ukryj hasło</button>
+  <div id="errorMsg"></div>
 </div>
 
-<div id="adminDiv" class="hidden">
-  <h3>Panel Szefa</h3>
-  <h4>Tworzenie kont pracowników:</h4>
-  <input type="email" id="newEmail" placeholder="Email pracownika">
-  <input type="password" id="newPassword" placeholder="Hasło">
-  <button onclick="createEmployee()">Utwórz konto</button>
-  
-  <h4>Wnioski urlopowe:</h4>
-  <table id="adminTable">
-    <tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>
-  </table>
-  <button onclick="logout()">Wyloguj</button>
-</div>
-
-<div id="employeeDiv" class="hidden">
-  <h3>Panel Pracownika</h3>
-  <h4>Wybierz dni urlopu:</h4>
-  <div id="calendar"></div>
-  <button onclick="sendVacation()">Wyślij wniosek</button>
-  <h4>Twoje wnioski:</h4>
-  <table id="employeeTable">
-    <tr><th>Dni</th><th>Status</th></tr>
-  </table>
-  <button onclick="logout()">Wyloguj</button>
-</div>
-
-<!-- Firebase compat SDK -->
+<!-- Firebase compat -->
 <script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Konfiguracja Firebase
+// INICJALIZACJA FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
   authDomain: "urlopy-ee985.firebaseapp.com",
@@ -72,133 +88,52 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// GLOBALNE ZMIENNE
 let currentUser = null;
-let selectedDays = [];
 
-// --- ADMIN ---
-async function createEmployee() {
-  const email = document.getElementById("newEmail").value;
-  const password = document.getElementById("newPassword").value;
-  try {
-    const userCred = await auth.createUserWithEmailAndPassword(email, password);
-    await db.collection("users").doc(userCred.user.uid).set({role:"employee"});
-    alert("Konto pracownika utworzone!");
-  } catch(err) {
-    alert(err.message);
-  }
+// POKAŻ/UKRYJ HASŁO
+function togglePassword(){
+  const pass = document.getElementById("password");
+  pass.type = (pass.type === "password") ? "text" : "password";
 }
 
-async function loadAdminRequests() {
-  const table = document.getElementById("adminTable");
-  table.innerHTML="<tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>";
-  const snapshot = await db.collection("vacationRequests").get();
-  snapshot.forEach(docSnap => {
-    const d = docSnap.data();
-    const row = table.insertRow();
-    row.insertCell(0).innerText=d.user;
-    row.insertCell(1).innerText=d.days.join(", ");
-    row.insertCell(2).innerText=d.status;
-    const action = row.insertCell(3);
-    const approve = document.createElement("button");
-    approve.innerText="Zatwierdź";
-    approve.onclick=async()=>{ await db.collection("vacationRequests").doc(docSnap.id).update({status:"approved"}); loadAdminRequests(); }
-    const reject = document.createElement("button");
-    reject.innerText="Odrzuć";
-    reject.onclick=async()=>{ await db.collection("vacationRequests").doc(docSnap.id).update({status:"rejected"}); loadAdminRequests(); }
-    action.appendChild(approve);
-    action.appendChild(reject);
-  });
-}
-
-// --- PRACOWNIK ---
-function buildCalendar() {
-  const cal = document.getElementById("calendar");
-  cal.innerHTML="";
-  for(let i=1;i<=31;i++){
-    const day=document.createElement("div");
-    day.className="day";
-    day.innerText=i;
-    day.onclick=()=>{
-      if(selectedDays.includes(i)){
-        selectedDays=selectedDays.filter(d=>d!==i);
-        day.classList.remove("selected");
-      } else {
-        selectedDays.push(i);
-        day.classList.add("selected");
-      }
-    }
-    cal.appendChild(day);
-  }
-}
-
-async function sendVacation() {
-  if(selectedDays.length===0){alert("Zaznacz dni!"); return;}
-  await db.collection("vacationRequests").add({
-    user: currentUser.uid,
-    days:selectedDays,
-    status:"pending"
-  });
-  selectedDays=[];
-  buildCalendar();
-  loadEmployeeRequests();
-}
-
-async function loadEmployeeRequests() {
-  const table = document.getElementById("employeeTable");
-  table.innerHTML="<tr><th>Dni</th><th>Status</th></tr>";
-  const snapshot = await db.collection("vacationRequests").where("user","==",currentUser.uid).get();
-  snapshot.forEach(docSnap=>{
-    const d=docSnap.data();
-    const row=table.insertRow();
-    row.insertCell(0).innerText=d.days.join(", ");
-    row.insertCell(1).innerText=d.status;
-  });
-}
-
-// --- LOGOWANIE ---
+// LOGOWANIE
 async function login() {
-  const email=document.getElementById("email").value;
-  const password=document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const errorMsg = document.getElementById("errorMsg");
+  errorMsg.innerText = "";
+  
+  if(!email || !password){
+    errorMsg.innerText = "Podaj email i hasło!";
+    return;
+  }
+
   try {
-    const userCred = await auth.signInWithEmailAndPassword(email,password);
+    const userCred = await auth.signInWithEmailAndPassword(email, password);
     currentUser = userCred.user;
-    showPanel();
-  } catch(err) { alert(err.message); }
-}
 
-function logout() {
-  auth.signOut().then(()=>{
-    currentUser=null;
-    document.getElementById("loginDiv").classList.remove("hidden");
-    document.getElementById("employeeDiv").classList.add("hidden");
-    document.getElementById("adminDiv").classList.add("hidden");
-  });
-}
+    const docSnap = await db.collection("users").doc(currentUser.uid).get();
+    let role = "employee"; 
+    if(docSnap.exists() && docSnap.data().role === "admin") role = "admin";
 
-async function showPanel() {
-  const docSnap = await db.collection("users").doc(currentUser.uid).get();
-  const role = docSnap.data().role;
-  document.getElementById("loginDiv").classList.add("hidden");
-  if(role==="employee"){
-    document.getElementById("employeeDiv").classList.remove("hidden");
-    buildCalendar();
-    loadEmployeeRequests();
-  } else if(role==="admin"){
-    document.getElementById("adminDiv").classList.remove("hidden");
-    loadAdminRequests();
+    // Przekierowanie na prostą stronę sukcesu
+    window.location.href = `success.html?role=${role}`;
+
+  } catch(err) {
+    if(err.code === "auth/user-not-found") errorMsg.innerText = "Nie znaleziono użytkownika!";
+    else if(err.code === "auth/wrong-password") errorMsg.innerText = "Błędne hasło!";
+    else errorMsg.innerText = err.message;
   }
 }
 
-// --- AUTOMATYCZNE konto admina przy pierwszym logowaniu ---
-auth.onAuthStateChanged(async(user)=>{
+// AUTOMATYCZNE LOGOWANIE
+auth.onAuthStateChanged(user => {
   if(user){
     currentUser = user;
-    const docRef = db.collection("users").doc(user.uid);
-    const docSnap = await docRef.get();
-    if(!docSnap.exists() && user.email==="maxblaze@example.com"){
-      await docRef.set({role:"admin"});
-    }
-    showPanel();
+    const errorMsg = document.getElementById("errorMsg");
+    errorMsg.style.color = "green";
+    errorMsg.innerText = "Już zalogowany: " + user.email;
   }
 });
 </script>
