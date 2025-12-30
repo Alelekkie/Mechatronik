@@ -2,187 +2,253 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>System urlopowy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Urlopowy Firebase</title>
 <style>
-body, html {height:100%; margin:0; font-family:Arial; display:flex; justify-content:center; align-items:flex-start; background:#f5f5f5;}
-#loginDiv {display:flex; flex-direction:column; align-items:center; justify-content:center; margin-top:50px; background:white; padding:30px 40px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.2);}
-input{width:250px;padding:10px;margin:10px 0;border:1px solid #aaa;border-radius:5px;}
-button{width:270px;padding:10px;margin-top:10px;background:#007bff;color:white;border:none;border-radius:5px;cursor:pointer;}
+body,html{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+.container{max-width:900px;margin:auto;padding:10px;}
+#loginDiv,#adminDiv,#employeeDiv{display:flex;flex-direction:column;align-items:center;padding:20px;border-radius:10px;margin-top:20px;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+#adminDiv,#employeeDiv{display:none;min-height:80vh;width:90%;color:white;}
+#adminDiv{background:black;}
+#employeeDiv{background:#222;}
+input,select{padding:10px;margin:5px 0;width:90%;max-width:250px;border-radius:5px;border:1px solid #aaa;}
+button{padding:10px;margin-top:10px;width:90%;max-width:270px;border:none;border-radius:5px;background:#007bff;color:white;cursor:pointer;}
 button:hover{background:#0056b3;}
-#errorMsg{color:red;margin-top:10px;font-weight:bold;}
-#loadingMsg{color:green;margin-top:10px;font-weight:bold;}
-.panel{display:none; flex-direction:column; align-items:center; margin-top:20px; width:100%;}
-#calendar{display:grid; grid-template-columns:repeat(7,40px); gap:5px; margin-top:10px;}
-.day{width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:1px solid #888;}
+#errorMsg{color:red;font-weight:bold;margin-top:5px;}
+#calendarControls{display:flex;justify-content:space-between;width:100%;max-width:300px;margin-top:10px;}
+#calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px;width:100%;}
+.day{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #888;background:#222;}
 .selected{background:lightgreen;}
-table{border-collapse:collapse;margin-top:10px;}
-table, th, td{border:1px solid #000; padding:5px;}
-#logoutBtn{margin-top:20px;padding:10px;width:150px;background:#ff4d4d;color:white;border:none;border-radius:5px;cursor:pointer;}
+table{border-collapse:collapse;width:100%;margin-top:10px;color:white;}
+table,th,td{border:1px solid white;padding:5px;text-align:center;}
+#logoutBtn{margin-top:20px;width:150px;background:#ff4d4d;color:white;}
 #logoutBtn:hover{background:#cc0000;}
+.approved{background:green;}
+.rejected{background:red;}
+@media(max-width:500px){input,select,button{width:100%;} #calendar{grid-template-columns:repeat(7,1fr);}}
 </style>
 </head>
 <body>
+<div class="container">
+  <div id="loginDiv">
+    <h2>Logowanie</h2>
+    <input type="text" id="email" placeholder="Imię użytkownika">
+    <input type="password" id="password" placeholder="Hasło">
+    <button onclick="login()">Zaloguj</button>
+    <button onclick="togglePassword()">Pokaż/Ukryj hasło</button>
+    <div id="errorMsg"></div>
+  </div>
 
-<div id="loginDiv">
-  <h2>Logowanie</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Hasło">
-  <button onclick="login()">Zaloguj</button>
-  <button onclick="togglePassword()" style="margin-top:5px;">Pokaż/Ukryj hasło</button>
-  <div id="errorMsg"></div>
-  <div id="loadingMsg"></div>
+  <div id="adminDiv">
+    <h2>ADMIN</h2>
+    <h3>Przypisz dni urlopowe:</h3>
+    <select id="employeeSelect"></select>
+    <input type="number" id="taskDays" placeholder="Dni zadaniowe">
+    <input type="number" id="vacationDays" placeholder="Dni wypoczynkowe">
+    <button onclick="setEmployeeDays()">Zapisz</button>
+
+    <h3>Wnioski urlopowe:</h3>
+    <table id="adminTable">
+      <tr><th>Pracownik</th><th>Dni</th><th>Typ</th><th>Status</th><th>Akcja</th></tr>
+    </table>
+    <button id="logoutBtn" onclick="logout()">Wyloguj</button>
+  </div>
+
+  <div id="employeeDiv">
+    <h2>PRACOWNIK</h2>
+    <div>Twoje dni: <span id="remainingTaskDays">0</span> zadaniowe, <span id="remainingVacationDays">0</span> wypoczynkowe</div>
+    <div id="calendarControls">
+      <button onclick="changeMonth(-1)">&lt; Poprzedni</button>
+      <span id="monthLabel"></span>
+      <button onclick="changeMonth(1)">Następny &gt;</button>
+    </div>
+    <select id="leaveType">
+      <option value="zadaniowy">Zadaniowy</option>
+      <option value="wypoczynkowy">Wypoczynkowy</option>
+    </select>
+    <div id="calendar"></div>
+    <button onclick="sendVacation()">Wyślij wniosek</button>
+
+    <h3>Twoje wnioski:</h3>
+    <table id="employeeTable">
+      <tr><th>Dni</th><th>Typ</th><th>Status</th></tr>
+    </table>
+    <button id="logoutBtn" onclick="logout()">Wyloguj</button>
+  </div>
 </div>
 
-<!-- Panel Admina -->
-<div id="adminPanel" class="panel">
-  <h2>ADMIN</h2>
-  <h3>Wnioski urlopowe:</h3>
-  <table id="adminTable">
-    <tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>
-  </table>
-  <button id="logoutBtn" onclick="logout()">Wyloguj</button>
-</div>
+<script type="module">
+// Firebase importy modularne
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-<!-- Panel Pracownika -->
-<div id="employeePanel" class="panel">
-  <h2>PRACOWNIK</h2>
-  <h3>Wybierz dni urlopu:</h3>
-  <div id="calendar"></div>
-  <button onclick="sendVacation()">Wyślij wniosek</button>
-  <h3>Twoje wnioski:</h3>
-  <table id="employeeTable">
-    <tr><th>Dni</th><th>Status</th></tr>
-  </table>
-  <button id="logoutBtn" onclick="logout()">Wyloguj</button>
-</div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-firestore-compat.js"></script>
-
-<script>
-// --- KONFIGURACJA FIREBASE ---
+// Konfiguracja Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
   authDomain: "urlopy-ee985.firebaseapp.com",
   projectId: "urlopy-ee985",
-  storageBucket: "urlopy-ee985.appspot.com",
+  storageBucket: "urlopy-ee985.firebasestorage.app",
   messagingSenderId: "1054650388220",
-  appId: "1:1054650388220:web:3545e54d9305db91e49179"
+  appId: "1:1054650388220:web:3545e54d9305db91e49179",
+  measurementId: "G-S3KDP408JF"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 
-// --- UŻYTKOWNICY W KODZIE ---
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Użytkownicy lokalnie
 const users = [
-  {email:"pawel.marczewski@interia.pl", password:"0909", role:"admin"},
-  {email:"pracownik@example.com", password:"1234", role:"employee"}
+  {email:"pawel", password:"0909", role:"admin"},
+  {email:"justyna", password:"1234", role:"employee"},
+  {email:"klaudia", password:"5678", role:"employee"}
 ];
 
-let currentUser = null;
-let selectedDays = [];
+let currentUser=null, selectedDays=[], currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
+const monthNames=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 
-// --- LOGOWANIE ---
 function togglePassword(){
-  const pass = document.getElementById("password");
-  pass.type = pass.type==="password" ? "text" : "password";
+  const pass=document.getElementById("password");
+  pass.type=pass.type==="password"?"text":"password";
 }
 
 function login(){
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const errorMsg = document.getElementById("errorMsg");
-  const loadingMsg = document.getElementById("loadingMsg");
-  errorMsg.innerText=""; loadingMsg.innerText="";
-
-  if(!email || !password){ errorMsg.innerText="Wpisz email i hasło!"; return; }
-
-  loadingMsg.innerText="Ładowanie...";
-  setTimeout(()=>{
-    const user = users.find(u=>u.email===email && u.password===password);
-    if(user){
-      currentUser=user;
-      document.getElementById("loginDiv").style.display="none";
-      if(user.role==="admin"){ document.getElementById("adminPanel").style.display="flex"; loadAdminRequests(); }
-      else if(user.role==="employee"){ document.getElementById("employeePanel").style.display="flex"; buildCalendar(); loadEmployeeRequests(); }
-    } else { errorMsg.innerText="Błędne dane logowania!"; }
-    loadingMsg.innerText="";
-  },500);
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value.trim();
+  const errorMsg=document.getElementById("errorMsg");
+  errorMsg.innerText="";
+  if(!email||!password){ errorMsg.innerText="Wpisz login i hasło!"; return; }
+  const user=users.find(u=>u.email===email && u.password===password);
+  if(user){
+    currentUser=user;
+    document.getElementById("loginDiv").style.display="none";
+    if(user.role==="admin"){ document.getElementById("adminDiv").style.display="flex"; loadEmployeeOptions(); loadAdminRequests(); }
+    else { document.getElementById("employeeDiv").style.display="flex"; loadEmployeeDays(); buildCalendar(); loadEmployeeRequests(); }
+  } else errorMsg.innerText="Błędne dane logowania!";
 }
 
-// --- WYLOGOWANIE ---
 function logout(){
-  currentUser=null;
-  selectedDays=[];
+  currentUser=null; selectedDays=[];
   document.getElementById("loginDiv").style.display="flex";
-  document.getElementById("adminPanel").style.display="none";
-  document.getElementById("employeePanel").style.display="none";
+  document.getElementById("adminDiv").style.display="none";
+  document.getElementById("employeeDiv").style.display="none";
   document.getElementById("password").value="";
   document.getElementById("errorMsg").innerText="";
-  document.getElementById("loadingMsg").innerText="";
 }
 
-// --- KALENDARZ PRACOWNIKA ---
+// --- Admin ---
+async function loadEmployeeOptions(){
+  const select=document.getElementById("employeeSelect");
+  select.innerHTML="";
+  for(const u of users.filter(u=>u.role==="employee")){
+    const opt=document.createElement("option"); opt.value=u.email; opt.innerText=u.email; select.appendChild(opt);
+    // init Firestore employees if not exists
+    const empDoc = await getDoc(doc(db,"employees",u.email));
+    if(!empDoc.exists()) await setDoc(doc(db,"employees",u.email),{task:3,vacation:17});
+  }
+}
+
+async function setEmployeeDays(){
+  const email=document.getElementById("employeeSelect").value;
+  const taskDays=parseInt(document.getElementById("taskDays").value)||0;
+  const vacDays=parseInt(document.getElementById("vacationDays").value)||0;
+  await setDoc(doc(db,"employees",email),{task:taskDays,vacation:vacDays});
+  alert("Zapisano dni dla "+email);
+}
+
+async function loadAdminRequests(){
+  const table=document.getElementById("adminTable");
+  table.innerHTML="<tr><th>Pracownik</th><th>Dni</th><th>Typ</th><th>Status</th><th>Akcja</th></tr>";
+  const qSnapshot = await getDocs(collection(db,"vacationRequests"));
+  qSnapshot.forEach(docSnap=>{
+    const r = docSnap.data();
+    const row=table.insertRow();
+    row.className = r.status==="zatwierdzony"?"approved":r.status==="odrzucony"?"rejected":"";
+    row.insertCell(0).innerText=r.user;
+    row.insertCell(1).innerText=r.days.join(", ");
+    row.insertCell(2).innerText=r.type;
+    row.insertCell(3).innerText=r.status;
+    const cell=row.insertCell(4);
+    const btnApp=document.createElement("button"); btnApp.innerText="Zatwierdź"; btnApp.onclick=async()=>{
+      await updateDoc(doc(db,"vacationRequests",docSnap.id),{status:"zatwierdzony"});
+      loadAdminRequests();
+    };
+    const btnRej=document.createElement("button"); btnRej.innerText="Odrzuć"; btnRej.style.marginLeft="5px"; btnRej.onclick=async()=>{
+      await updateDoc(doc(db,"vacationRequests",docSnap.id),{status:"odrzucony"});
+      loadAdminRequests();
+    };
+    cell.appendChild(btnApp); cell.appendChild(btnRej);
+  });
+}
+
+// --- Employee ---
+async function loadEmployeeDays(){
+  const docSnap = await getDoc(doc(db,"employees",currentUser.email));
+  if(docSnap.exists()){
+    const data=docSnap.data();
+    document.getElementById("remainingTaskDays").innerText=data.task;
+    document.getElementById("remainingVacationDays").innerText=data.vacation;
+  }
+}
+
 function buildCalendar(){
-  const cal = document.getElementById("calendar");
+  const cal=document.getElementById("calendar");
   cal.innerHTML="";
-  for(let i=1;i<=31;i++){
-    const day=document.createElement("div");
-    day.className="day"; day.innerText=i;
-    day.onclick=()=>{
-      if(selectedDays.includes(i)){ selectedDays=selectedDays.filter(d=>d!==i); day.classList.remove("selected"); }
-      else{ selectedDays.push(i); day.classList.add("selected"); }
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  document.getElementById("monthLabel").innerText=monthNames[currentMonth]+" "+currentYear;
+  for(let i=1;i<=daysInMonth;i++){
+    const day=document.createElement("div"); day.className="day"; day.innerText=i;
+    day.onclick=()=>{ 
+      if(selectedDays.includes(i)){ selectedDays=selectedDays.filter(d=>d!==i); day.classList.remove("selected"); } 
+      else{ selectedDays.push(i); day.classList.add("selected"); } 
     };
     cal.appendChild(day);
   }
 }
 
-// --- WYSYŁANIE WNIOSKU ---
-function sendVacation(){
-  if(selectedDays.length===0){ alert("Zaznacz dni!"); return; }
-  db.collection("vacationRequests").add({
-    user:currentUser.email,
-    days:selectedDays,
-    status:"pending"
-  }).then(()=>{ selectedDays=[]; buildCalendar(); loadEmployeeRequests(); });
+function changeMonth(delta){
+  currentMonth+=delta;
+  if(currentMonth<0){currentMonth=11; currentYear--;}
+  else if(currentMonth>11){currentMonth=0; currentYear++;}
+  buildCalendar();
 }
 
-// --- WYŚWIETLANIE WNIOSKÓW PRACOWNIKA ---
-function loadEmployeeRequests(){
-  const table = document.getElementById("employeeTable");
-  table.innerHTML="<tr><th>Dni</th><th>Status</th></tr>";
-  db.collection("vacationRequests").where("user","==",currentUser.email)
-    .get().then(snapshot=>{
-      snapshot.forEach(doc=>{
-        const d=doc.data();
-        const row=table.insertRow();
-        row.insertCell(0).innerText=d.days.join(", ");
-        row.insertCell(1).innerText=d.status;
-      });
-    });
+async function sendVacation(){
+  if(selectedDays.length===0){alert("Zaznacz dni!"); return;}
+  const type=document.getElementById("leaveType").value;
+  const docSnap=await getDoc(doc(db,"employees",currentUser.email));
+  if(!docSnap.exists()) return;
+  const empData=docSnap.data();
+  if(type==="zadaniowy" && selectedDays.length>empData.task){alert("Brak wystarczającej liczby dni zadaniowych!"); return;}
+  if(type==="wypoczynkowy" && selectedDays.length>empData.vacation){alert("Brak wystarczającej liczby dni wypoczynkowych!"); return;}
+  const newTask = type==="zadaniowy"?empData.task-selectedDays.length:empData.task;
+  const newVac = type==="wypoczynkowy"?empData.vacation-selectedDays.length:empData.vacation;
+  await setDoc(doc(db,"employees",currentUser.email),{task:newTask,vacation:newVac});
+  await addDoc(collection(db,"vacationRequests"),{
+    user: currentUser.email,
+    days: selectedDays,
+    type,
+    status: "oczekuje"
+  });
+  selectedDays=[];
+  buildCalendar(); 
+  loadEmployeeRequests();
+  loadEmployeeDays();
 }
 
-// --- WYŚWIETLANIE WNIOSKÓW ADMINA ---
-function loadAdminRequests(){
-  const table = document.getElementById("adminTable");
-  table.innerHTML="<tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>";
-  db.collection("vacationRequests").get().then(snapshot=>{
-    snapshot.forEach(docSnap=>{
-      const d = docSnap.data();
-      const row = table.insertRow();
-      row.insertCell(0).innerText=d.user;
-      row.insertCell(1).innerText=d.days.join(", ");
-      row.insertCell(2).innerText=d.status;
-      const action=row.insertCell(3);
-      const approve=document.createElement("button"); approve.innerText="Zatwierdź";
-      approve.onclick=()=>{ db.collection("vacationRequests").doc(docSnap.id).update({status:"approved"}).then(loadAdminRequests); };
-      const reject=document.createElement("button"); reject.innerText="Odrzuć";
-      reject.onclick=()=>{ db.collection("vacationRequests").doc(docSnap.id).update({status:"rejected"}).then(loadAdminRequests); };
-      action.appendChild(approve); action.appendChild(reject);
-    });
+async function loadEmployeeRequests(){
+  const table=document.getElementById("employeeTable");
+  table.innerHTML="<tr><th>Dni</th><th>Typ</th><th>Status</th></tr>";
+  const q = query(collection(db,"vacationRequests"), where("user","==",currentUser.email));
+  const snapshot = await getDocs(q);
+  snapshot.forEach(docSnap=>{
+    const r = docSnap.data();
+    const row=table.insertRow();
+    row.className = r.status==="zatwierdzony"?"approved":r.status==="odrzucony"?"rejected":"";
+    row.insertCell(0).innerText=`${monthNames[currentMonth]} ${r.days.join(", ")}`;
+    row.insertCell(1).innerText=r.type;
+    row.insertCell(2).innerText=r.status;
   });
 }
 </script>
-
 </body>
 </html>
