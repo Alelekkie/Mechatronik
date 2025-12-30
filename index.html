@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Admin Login</title>
+<title>Logowanie</title>
 <style>
 body, html {height:100%; margin:0; font-family:Arial; display:flex; justify-content:center; align-items:center; background:#f5f5f5;}
 #loginDiv {display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; background:white; padding:30px 40px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.2);}
@@ -10,7 +10,10 @@ input{width:250px;padding:10px;margin:10px 0;border:1px solid #aaa;border-radius
 button{width:270px;padding:10px;margin-top:10px;background:#007bff;color:white;border:none;border-radius:5px;cursor:pointer;}
 button:hover{background:#0056b3;}
 #errorMsg{color:red;margin-top:10px;font-weight:bold;}
-#adminDiv{display:none;height:100%;width:100%;background:black;color:white;flex-direction:column;justify-content:center;align-items:center;font-size:2em;}
+#loadingMsg{color:green; margin-top:10px; font-weight:bold;}
+.panel{display:none; height:100%; width:100%; flex-direction:column; justify-content:center; align-items:center; font-size:2em; color:white;}
+#adminPanel{background:black; display:flex;}
+#employeePanel{background:darkblue; display:flex;}
 #logoutBtn{margin-top:20px;width:150px;padding:10px;background:#ff4d4d;}
 #logoutBtn:hover{background:#cc0000;}
 </style>
@@ -18,23 +21,31 @@ button:hover{background:#0056b3;}
 <body>
 
 <div id="loginDiv">
-  <h2>Logowanie Admin</h2>
+  <h2>Logowanie</h2>
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Hasło">
   <button onclick="login()">Zaloguj</button>
   <button onclick="togglePassword()" style="margin-top:5px;">Pokaż/Ukryj hasło</button>
   <div id="errorMsg"></div>
+  <div id="loadingMsg"></div>
 </div>
 
-<div id="adminDiv">
+<div id="adminPanel" class="panel">
   ADMIN
   <button id="logoutBtn" onclick="logout()">Wyloguj</button>
 </div>
 
+<div id="employeePanel" class="panel">
+  PRACOWNIK
+  <button id="logoutBtn" onclick="logout()">Wyloguj</button>
+</div>
+
 <script>
-// Tutaj zapisane dane admina
-const ADMIN_EMAIL = "pawel.marczewski@interia.pl";
-const ADMIN_PASSWORD = "0909";
+// Dane użytkowników zapisane w kodzie
+const users = [
+  {email:"pawel.marczewski@interia.pl", password:"0909", role:"admin"},
+  {email:"pracownik@example.com", password:"1234", role:"employee"}
+];
 
 function togglePassword(){
   const pass = document.getElementById("password");
@@ -42,24 +53,43 @@ function togglePassword(){
 }
 
 function login(){
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
   const errorMsg = document.getElementById("errorMsg");
+  const loadingMsg = document.getElementById("loadingMsg");
   errorMsg.innerText="";
+  loadingMsg.innerText="";
 
-  if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
-    document.getElementById("loginDiv").style.display="none";
-    document.getElementById("adminDiv").style.display="flex";
-  } else {
-    errorMsg.innerText="Błędne dane logowania!";
+  if(!email || !password){
+    errorMsg.innerText="Wpisz email i hasło!";
+    return;
   }
+
+  loadingMsg.innerText="Ładowanie...";
+
+  setTimeout(()=>{
+    const user = users.find(u => u.email===email && u.password===password);
+    if(user){
+      document.getElementById("loginDiv").style.display="none";
+      if(user.role==="admin"){
+        document.getElementById("adminPanel").style.display="flex";
+      } else if(user.role==="employee"){
+        document.getElementById("employeePanel").style.display="flex";
+      }
+    } else {
+      errorMsg.innerText="Błędne dane logowania!";
+    }
+    loadingMsg.innerText="";
+  }, 1000); // 1s opóźnienie żeby pokazać "Ładowanie..."
 }
 
 function logout(){
   document.getElementById("loginDiv").style.display="flex";
-  document.getElementById("adminDiv").style.display="none";
+  document.getElementById("adminPanel").style.display="none";
+  document.getElementById("employeePanel").style.display="none";
   document.getElementById("password").value="";
   document.getElementById("errorMsg").innerText="";
+  document.getElementById("loadingMsg").innerText="";
 }
 </script>
 
