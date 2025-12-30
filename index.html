@@ -51,12 +51,13 @@ table, th, td { border: 1px solid #000; padding: 5px; }
   <button onclick="logout()">Wyloguj</button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.30.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.30.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/9.30.0/firebase-firestore.js";
+<!-- Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-firestore-compat.js"></script>
 
-// Twój Firebase config
+<script>
+// Konfiguracja Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
   authDomain: "urlopy-ee985.firebaseapp.com",
@@ -67,9 +68,9 @@ const firebaseConfig = {
   measurementId: "G-S3KDP408JF"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 let currentUser = null;
 let selectedDays = [];
@@ -79,8 +80,8 @@ async function createEmployee() {
   const email = document.getElementById("newEmail").value;
   const password = document.getElementById("newPassword").value;
   try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, "users", userCred.user.uid), {role:"employee"});
+    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+    await db.collection("users").doc(userCred.user.uid).set({role:"employee"});
     alert("Konto pracownika utworzone!");
   } catch(err) {
     alert(err.message);
@@ -90,8 +91,8 @@ async function createEmployee() {
 async function loadAdminRequests() {
   const table = document.getElementById("adminTable");
   table.innerHTML="<tr><th>Pracownik</th><th>Dni</th><th>Status</th><th>Akcja</th></tr>";
-  const snapshot = await getDocs(collection(db, "vacationRequests"));
-  snapshot.forEach(async docSnap => {
+  const snapshot = await db.collection("vacationRequests").get();
+  snapshot.forEach(docSnap => {
     const d = docSnap.data();
     const row = table.insertRow();
     row.insertCell(0).innerText=d.user;
@@ -100,10 +101,10 @@ async function loadAdminRequests() {
     const action = row.insertCell(3);
     const approve = document.createElement("button");
     approve.innerText="Zatwierdź";
-    approve.onclick=async()=>{ await updateDoc(doc(db,"vacationRequests",docSnap.id),{status:"approved"}); loadAdminRequests(); }
+    approve.onclick=async()=>{ await db.collection("vacationRequests").doc(docSnap.id).update({status:"approved"}); loadAdminRequests(); }
     const reject = document.createElement("button");
     reject.innerText="Odrzuć";
-    reject.onclick=async()=>{ await updateDoc(doc(db,"vacationRequests",docSnap.id),{status:"rejected"}); loadAdminRequests(); }
+    reject.onclick=async()=>{ await db.collection("vacationRequests").doc(docSnap.id).update({status:"rejected"}); loadAdminRequests(); }
     action.appendChild(approve);
     action.appendChild(reject);
   });
@@ -132,7 +133,7 @@ function buildCalendar() {
 
 async function sendVacation() {
   if(selectedDays.length===0){alert("Zaznacz dni!"); return;}
-  await addDoc(collection(db,"vacationRequests"),{
+  await db.collection("vacationRequests").add({
     user: currentUser.uid,
     days:selectedDays,
     status:"pending"
@@ -145,8 +146,7 @@ async function sendVacation() {
 async function loadEmployeeRequests() {
   const table = document.getElementById("employeeTable");
   table.innerHTML="<tr><th>Dni</th><th>Status</th></tr>";
-  const q = query(collection(db,"vacationRequests"), where("user","==",currentUser.uid));
-  const snapshot = await getDocs(q);
+  const snapshot = await db.collection("vacationRequests").where("user","==",currentUser.uid).get();
   snapshot.forEach(docSnap=>{
     const d=docSnap.data();
     const row=table.insertRow();
@@ -160,7 +160,7 @@ async function login() {
   const email=document.getElementById("email").value;
   const password=document.getElementById("password").value;
   try {
-    const userCred = await signInWithEmailAndPassword(auth,email,password);
+    const userCred = await auth.signInWithEmailAndPassword(email,password);
     currentUser = userCred.user;
     showPanel();
   } catch(err) { alert(err.message); }
@@ -176,7 +176,7 @@ function logout() {
 }
 
 async function showPanel() {
-  const docSnap = await getDoc(doc(db,"users",currentUser.uid));
+  const docSnap = await db.collection("users").doc(currentUser.uid).get();
   const role = docSnap.data().role;
   document.getElementById("loginDiv").classList.add("hidden");
   if(role==="employee"){
@@ -190,13 +190,13 @@ async function showPanel() {
 }
 
 // --- AUTOMATYCZNE konto admina przy pierwszym logowaniu ---
-onAuthStateChanged(auth, async(user)=>{
+auth.onAuthStateChanged(async(user)=>{
   if(user){
     currentUser = user;
-    const docRef = doc(db,"users",user.uid);
-    const docSnap = await getDoc(docRef);
+    const docRef = db.collection("users").doc(user.uid);
+    const docSnap = await docRef.get();
     if(!docSnap.exists() && user.email==="maxblaze@example.com"){
-      await setDoc(docRef,{role:"admin"});
+      await docRef.set({role:"admin"});
     }
     showPanel();
   }
