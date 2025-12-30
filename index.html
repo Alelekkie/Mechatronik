@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>System Urlopowy Firebase</title>
+<title>System Urlopowy - Firebase</title>
 <style>
 body,html{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;}
 .container{max-width:900px;margin:auto;padding:10px;}
@@ -21,24 +21,26 @@ button:hover{background:#0056b3;}
 .selected{background:lightgreen;}
 table{border-collapse:collapse;width:100%;margin-top:10px;color:white;}
 table,th,td{border:1px solid white;padding:5px;text-align:center;}
+.approved{background:green !important;}
+.rejected{background:red !important;}
 #logoutBtn{margin-top:20px;width:150px;background:#ff4d4d;color:white;}
 #logoutBtn:hover{background:#cc0000;}
-.approved{background:green;}
-.rejected{background:red;}
 @media(max-width:500px){input,select,button{width:100%;} #calendar{grid-template-columns:repeat(7,1fr);}}
 </style>
 </head>
 <body>
 <div class="container">
+  <!-- LOGIN -->
   <div id="loginDiv">
     <h2>Logowanie</h2>
-    <input type="text" id="email" placeholder="Imię użytkownika">
+    <input type="text" id="email" placeholder="Imię">
     <input type="password" id="password" placeholder="Hasło">
     <button onclick="login()">Zaloguj</button>
     <button onclick="togglePassword()">Pokaż/Ukryj hasło</button>
     <div id="errorMsg"></div>
   </div>
 
+  <!-- ADMIN -->
   <div id="adminDiv">
     <h2>ADMIN</h2>
     <h3>Przypisz dni urlopowe:</h3>
@@ -54,6 +56,7 @@ table,th,td{border:1px solid white;padding:5px;text-align:center;}
     <button id="logoutBtn" onclick="logout()">Wyloguj</button>
   </div>
 
+  <!-- PRACOWNIK -->
   <div id="employeeDiv">
     <h2>PRACOWNIK</h2>
     <div>Twoje dni: <span id="remainingTaskDays">0</span> zadaniowe, <span id="remainingVacationDays">0</span> wypoczynkowe</div>
@@ -77,12 +80,21 @@ table,th,td{border:1px solid white;padding:5px;text-align:center;}
   </div>
 </div>
 
-<script type="module">
-// Firebase importy modularne
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, addDoc, collection, getDocs, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-// Konfiguracja Firebase
+<script>
+const users=[
+  {email:"pawel", password:"0909", role:"admin"},
+  {email:"justyna", password:"1234", role:"employee"},
+  {email:"klaudia", password:"5678", role:"employee"}
+];
+
+let currentUser=null, selectedDays=[], currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
+const monthNames=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
+
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
   authDomain: "urlopy-ee985.firebaseapp.com",
@@ -92,26 +104,26 @@ const firebaseConfig = {
   appId: "1:1054650388220:web:3545e54d9305db91e49179",
   measurementId: "G-S3KDP408JF"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Użytkownicy lokalnie
-const users = [
-  {email:"pawel", password:"0909", role:"admin"},
-  {email:"justyna", password:"1234", role:"employee"},
-  {email:"klaudia", password:"5678", role:"employee"}
-];
-
-let currentUser=null, selectedDays=[], currentMonth=new Date().getMonth(), currentYear=new Date().getFullYear();
-const monthNames=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
+// Initialize employees in Firebase if not exists
+async function initEmployees() {
+  for (let u of users.filter(u=>u.role==="employee")) {
+    const doc = await db.collection("employees").doc(u.email).get();
+    if(!doc.exists) {
+      await db.collection("employees").doc(u.email).set({task:5, vacation:15});
+    }
+  }
+}
+initEmployees();
 
 function togglePassword(){
   const pass=document.getElementById("password");
   pass.type=pass.type==="password"?"text":"password";
 }
 
-function login(){
+async function login(){
   const email=document.getElementById("email").value.trim();
   const password=document.getElementById("password").value.trim();
   const errorMsg=document.getElementById("errorMsg");
@@ -121,8 +133,13 @@ function login(){
   if(user){
     currentUser=user;
     document.getElementById("loginDiv").style.display="none";
-    if(user.role==="admin"){ document.getElementById("adminDiv").style.display="flex"; loadEmployeeOptions(); loadAdminRequests(); }
-    else { document.getElementById("employeeDiv").style.display="flex"; loadEmployeeDays(); buildCalendar(); loadEmployeeRequests(); }
+    if(user.role==="admin"){
+      document.getElementById("adminDiv").style.display="flex";
+      loadEmployeeOptions(); loadAdminRequests();
+    } else {
+      document.getElementById("employeeDiv").style.display="flex";
+      await loadEmployeeDays(); buildCalendar(); loadEmployeeRequests();
+    }
   } else errorMsg.innerText="Błędne dane logowania!";
 }
 
@@ -139,41 +156,45 @@ function logout(){
 async function loadEmployeeOptions(){
   const select=document.getElementById("employeeSelect");
   select.innerHTML="";
-  for(const u of users.filter(u=>u.role==="employee")){
-    const opt=document.createElement("option"); opt.value=u.email; opt.innerText=u.email; select.appendChild(opt);
-    // init Firestore employees if not exists
-    const empDoc = await getDoc(doc(db,"employees",u.email));
-    if(!empDoc.exists()) await setDoc(doc(db,"employees",u.email),{task:3,vacation:17});
-  }
+  const snapshot = await db.collection("employees").get();
+  snapshot.forEach(doc=>{
+    const opt=document.createElement("option");
+    opt.value=doc.id; opt.innerText=doc.id;
+    select.appendChild(opt);
+  });
 }
 
 async function setEmployeeDays(){
   const email=document.getElementById("employeeSelect").value;
   const taskDays=parseInt(document.getElementById("taskDays").value)||0;
   const vacDays=parseInt(document.getElementById("vacationDays").value)||0;
-  await setDoc(doc(db,"employees",email),{task:taskDays,vacation:vacDays});
+  await db.collection("employees").doc(email).set({task:taskDays, vacation:vacDays});
   alert("Zapisano dni dla "+email);
+  loadEmployeeOptions();
 }
 
 async function loadAdminRequests(){
   const table=document.getElementById("adminTable");
   table.innerHTML="<tr><th>Pracownik</th><th>Dni</th><th>Typ</th><th>Status</th><th>Akcja</th></tr>";
-  const qSnapshot = await getDocs(collection(db,"vacationRequests"));
-  qSnapshot.forEach(docSnap=>{
-    const r = docSnap.data();
+  const snapshot = await db.collection("vacationRequests").get();
+  snapshot.forEach(doc=>{
+    const r = doc.data();
     const row=table.insertRow();
-    row.className = r.status==="zatwierdzony"?"approved":r.status==="odrzucony"?"rejected":"";
     row.insertCell(0).innerText=r.user;
     row.insertCell(1).innerText=r.days.join(", ");
     row.insertCell(2).innerText=r.type;
     row.insertCell(3).innerText=r.status;
+    if(r.status==="zatwierdzony") row.classList.add("approved");
+    if(r.status==="odrzucony") row.classList.add("rejected");
     const cell=row.insertCell(4);
-    const btnApp=document.createElement("button"); btnApp.innerText="Zatwierdź"; btnApp.onclick=async()=>{
-      await updateDoc(doc(db,"vacationRequests",docSnap.id),{status:"zatwierdzony"});
+    const btnApp=document.createElement("button"); btnApp.innerText="Zatwierdź"; 
+    btnApp.onclick=async ()=>{
+      await db.collection("vacationRequests").doc(doc.id).update({status:"zatwierdzony"});
       loadAdminRequests();
     };
-    const btnRej=document.createElement("button"); btnRej.innerText="Odrzuć"; btnRej.style.marginLeft="5px"; btnRej.onclick=async()=>{
-      await updateDoc(doc(db,"vacationRequests",docSnap.id),{status:"odrzucony"});
+    const btnRej=document.createElement("button"); btnRej.innerText="Odrzuć"; btnRej.style.marginLeft="5px"; 
+    btnRej.onclick=async ()=>{
+      await db.collection("vacationRequests").doc(doc.id).update({status:"odrzucony"});
       loadAdminRequests();
     };
     cell.appendChild(btnApp); cell.appendChild(btnRej);
@@ -182,12 +203,11 @@ async function loadAdminRequests(){
 
 // --- Employee ---
 async function loadEmployeeDays(){
-  const docSnap = await getDoc(doc(db,"employees",currentUser.email));
-  if(docSnap.exists()){
-    const data=docSnap.data();
-    document.getElementById("remainingTaskDays").innerText=data.task;
-    document.getElementById("remainingVacationDays").innerText=data.vacation;
-  }
+  const doc = await db.collection("employees").doc(currentUser.email).get();
+  const days = doc.data();
+  document.getElementById("remainingTaskDays").innerText=days.task;
+  document.getElementById("remainingVacationDays").innerText=days.vacation;
+  return days;
 }
 
 function buildCalendar(){
@@ -198,8 +218,8 @@ function buildCalendar(){
   for(let i=1;i<=daysInMonth;i++){
     const day=document.createElement("div"); day.className="day"; day.innerText=i;
     day.onclick=()=>{ 
-      if(selectedDays.includes(i)){ selectedDays=selectedDays.filter(d=>d!==i); day.classList.remove("selected"); } 
-      else{ selectedDays.push(i); day.classList.add("selected"); } 
+      if(selectedDays.includes(i)){ selectedDays=selectedDays.filter(d=>d!==i); day.classList.remove("selected"); }
+      else{ selectedDays.push(i); day.classList.add("selected"); }
     };
     cal.appendChild(day);
   }
@@ -215,38 +235,39 @@ function changeMonth(delta){
 async function sendVacation(){
   if(selectedDays.length===0){alert("Zaznacz dni!"); return;}
   const type=document.getElementById("leaveType").value;
-  const docSnap=await getDoc(doc(db,"employees",currentUser.email));
-  if(!docSnap.exists()) return;
-  const empData=docSnap.data();
-  if(type==="zadaniowy" && selectedDays.length>empData.task){alert("Brak wystarczającej liczby dni zadaniowych!"); return;}
-  if(type==="wypoczynkowy" && selectedDays.length>empData.vacation){alert("Brak wystarczającej liczby dni wypoczynkowych!"); return;}
-  const newTask = type==="zadaniowy"?empData.task-selectedDays.length:empData.task;
-  const newVac = type==="wypoczynkowy"?empData.vacation-selectedDays.length:empData.vacation;
-  await setDoc(doc(db,"employees",currentUser.email),{task:newTask,vacation:newVac});
-  await addDoc(collection(db,"vacationRequests"),{
+  const daysData = await db.collection("employees").doc(currentUser.email).get();
+  const days = daysData.data();
+  if(type==="zadaniowy" && selectedDays.length>days.task){alert("Brak wystarczającej liczby dni zadaniowych!"); return;}
+  if(type==="wypoczynkowy" && selectedDays.length>days.vacation){alert("Brak wystarczającej liczby dni wypoczynkowych!"); return;}
+  if(type==="zadaniowy") days.task-=selectedDays.length;
+  else days.vacation-=selectedDays.length;
+  await db.collection("employees").doc(currentUser.email).set(days);
+
+  const newDoc = await db.collection("vacationRequests").add({
     user: currentUser.email,
+    month: currentMonth,
+    year: currentYear,
     days: selectedDays,
-    type,
+    type: type,
     status: "oczekuje"
   });
   selectedDays=[];
-  buildCalendar(); 
-  loadEmployeeRequests();
-  loadEmployeeDays();
+  buildCalendar();
+  await loadEmployeeRequests();
 }
 
 async function loadEmployeeRequests(){
   const table=document.getElementById("employeeTable");
   table.innerHTML="<tr><th>Dni</th><th>Typ</th><th>Status</th></tr>";
-  const q = query(collection(db,"vacationRequests"), where("user","==",currentUser.email));
-  const snapshot = await getDocs(q);
-  snapshot.forEach(docSnap=>{
-    const r = docSnap.data();
+  const snapshot = await db.collection("vacationRequests").where("user","==",currentUser.email).get();
+  snapshot.forEach(doc=>{
+    const r=doc.data();
     const row=table.insertRow();
-    row.className = r.status==="zatwierdzony"?"approved":r.status==="odrzucony"?"rejected":"";
-    row.insertCell(0).innerText=`${monthNames[currentMonth]} ${r.days.join(", ")}`;
+    row.insertCell(0).innerText=`${monthNames[r.month]} ${r.days.join(", ")}`;
     row.insertCell(1).innerText=r.type;
     row.insertCell(2).innerText=r.status;
+    if(r.status==="zatwierdzony") row.classList.add("approved");
+    if(r.status==="odrzucony") row.classList.add("rejected");
   });
 }
 </script>
