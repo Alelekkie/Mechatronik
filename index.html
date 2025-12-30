@@ -31,68 +31,36 @@ button:hover{background:#0056b3;}
   <button id="logoutBtn" onclick="logout()">Wyloguj</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.30.0/firebase-auth-compat.js"></script>
-
 <script>
-// Konfiguracja Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyD3XXnIM1gTcfMTj63lgyo8lUuivjPBO-I",
-  authDomain: "urlopy-ee985.firebaseapp.com",
-  projectId: "urlopy-ee985",
-  storageBucket: "urlopy-ee985.appspot.com",
-  messagingSenderId: "1054650388220",
-  appId: "1:1054650388220:web:3545e54d9305db91e49179"
-};
+// Tutaj zapisane dane admina
+const ADMIN_EMAIL = "pawel.marczewski@interia.pl";
+const ADMIN_PASSWORD = "0909";
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-
-// Pokaż/Ukryj hasło
 function togglePassword(){
   const pass = document.getElementById("password");
   pass.type = pass.type==="password" ? "text" : "password";
 }
 
-// Logowanie
 function login(){
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const errorMsg = document.getElementById("errorMsg");
-  errorMsg.innerText = "";
+  errorMsg.innerText="";
 
-  if(!email || !password){ errorMsg.innerText="Podaj email i hasło!"; return; }
-
-  auth.signInWithEmailAndPassword(email,password)
-    .then(()=> {
-      document.getElementById("loginDiv").style.display="none";
-      document.getElementById("adminDiv").style.display="flex";
-    })
-    .catch(err=>{
-      errorMsg.innerText="Błędne dane logowania!";
-    });
-}
-
-// Wylogowanie
-function logout(){
-  auth.signOut().then(()=>{
-    document.getElementById("loginDiv").style.display="flex";
-    document.getElementById("adminDiv").style.display="none";
-    document.getElementById("password").value="";
-    document.getElementById("errorMsg").innerText="";
-  });
-}
-
-// Automatyczne logowanie jeśli użytkownik już zalogowany
-auth.onAuthStateChanged(user=>{
-  if(user){
+  if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
     document.getElementById("loginDiv").style.display="none";
     document.getElementById("adminDiv").style.display="flex";
   } else {
-    document.getElementById("loginDiv").style.display="flex";
-    document.getElementById("adminDiv").style.display="none";
+    errorMsg.innerText="Błędne dane logowania!";
   }
-});
+}
+
+function logout(){
+  document.getElementById("loginDiv").style.display="flex";
+  document.getElementById("adminDiv").style.display="none";
+  document.getElementById("password").value="";
+  document.getElementById("errorMsg").innerText="";
+}
 </script>
 
 </body>
