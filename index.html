@@ -182,6 +182,34 @@ body, html {
   text-align: center;
   transition: all 0.3s ease;
 }
+#calendarHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.day {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+  cursor: pointer;
+}
+
+.day.selected {
+  background: #6cf;
+}
+
+.day.taken {
+  background: pink;
+  cursor: not-allowed;
+}
 
 #loginDiv,#adminDiv,#employeeDiv{display:flex;flex-direction:column;align-items:center;padding:20px;border-radius:10px;margin-top:20px;box-shadow:0 5px 15px rgba(0,0,0,0.2);background: black;}
     
@@ -250,7 +278,11 @@ table,th,td{padding:5px;text-align:center;}
       <option value="na żądanie">URLOP NA ŻĄDANIE</option>
       <option value="wypoczynkowy">URLOP WYPOCZYNKOWY</option>
     </select>
-    <div id="calendar"></div>
+    <div id="calendarWrapper">
+  <div id="calendarHeader"></div>
+  <div id="calendar"></div>
+</div>
+
     <button onclick="sendVacation()">Wyślij wniosek</button>
 
     <h3>Twoje wnioski:</h3>
@@ -362,17 +394,45 @@ async function loadAdminRequests(){
     const r = doc.data();
     const row=table.insertRow();
     row.insertCell(0).innerText=r.user;
-    row.insertCell(1).innerText=r.days.join(", ");
+    row.insertCell(1).innerText = r.days.map(d => `${d.day} ${monthNames[d.month]}`).join(", ");
+
     row.insertCell(2).innerText=r.type;
     row.insertCell(3).innerText=r.status;
     if(r.status==="zatwierdzony") row.classList.add("approved");
     if(r.status==="odrzucony") row.classList.add("rejected");
     const cell=row.insertCell(4);
     const btnApp=document.createElement("button"); btnApp.innerText="Zatwierdź"; 
-    btnApp.onclick=async ()=>{
-      await db.collection("vacationRequests").doc(doc.id).update({status:"zatwierdzony"});
-      loadAdminRequests();
-    };
+ btnApp.onclick = async ()=>{
+  const req = r; // dane wniosku
+
+  const empRef = db.collection("employees").doc(req.user);
+  const empSnap = await empRef.get();
+  const emp = empSnap.data();
+
+  const daysCount = req.days.length;
+
+  if(req.type === "na żądanie"){
+    if(emp.task < daysCount){
+      alert("Brak dni na żądanie!");
+      return;
+    }
+    emp.task -= daysCount;
+  } else {
+    if(emp.vacation < daysCount){
+      alert("Brak dni wypoczynkowych!");
+      return;
+    }
+    emp.vacation -= daysCount;
+  }
+
+  await empRef.set(emp);
+
+  await db.collection("vacationRequests").doc(doc.id)
+    .update({status:"zatwierdzony"});
+
+  loadAdminRequests();
+};
+
     const btnRej=document.createElement("button"); btnRej.innerText="Odrzuć"; btnRej.style.marginLeft="0px"; 
     btnRej.onclick=async ()=>{
       await db.collection("vacationRequests").doc(doc.id).update({status:"odrzucony"});
@@ -394,37 +454,70 @@ async function getTakenDays() {
   const taken = [];
   const snapshot = await db.collection("vacationRequests")
     .where("status", "==", "zatwierdzony")
-    .where("month", "==", currentMonth)
-    .where("year", "==", currentYear)
+    .where("user", "==", currentUser.email) // tylko zalogowany
     .get();
 
   snapshot.forEach(doc => {
-    taken.push(...doc.data().days);
+    const r = doc.data();
+    r.days.forEach(d => {
+      if(d.month === currentMonth && d.year === currentYear){
+        taken.push(d.day);
+      }
+    });
   });
 
   return taken;
 }
 
-async function buildCalendar(){
-  const cal=document.getElementById("calendar");
-  cal.innerHTML="";
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  document.getElementById("monthLabel").innerText=monthNames[currentMonth]+" "+currentYear;
 
+async function buildCalendar(){ 
+  const header = document.getElementById("calendarHeader");
+  const cal = document.getElementById("calendar");
+
+  header.innerHTML = "";
+  cal.innerHTML = "";
+
+  // 🔥 NAGŁÓWEK DNI TYGODNIA (PN → ND)
+  const weekDays = ["Pon","Wt","Śr","Czw","Pt","Sob","Nd"];
+  weekDays.forEach(d => {
+    const div = document.createElement("div");
+    div.innerText = d;
+    div.style.textAlign = "center";
+    div.style.fontWeight = "bold";
+    header.appendChild(div);
+  });
+
+  // etykieta miesiąca
+  document.getElementById("monthLabel").innerText =
+    monthNames[currentMonth] + " " + currentYear;
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  // 🔥 Dzień tygodnia 1. dnia miesiąca (0 = poniedziałek)
+  let firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  firstDay = (firstDay + 6) % 7; // JS: nd=0 → my: pn=0
+
+  // 🔥 PUSTE POLA PRZED 1 DNIEM
+  for(let i = 0; i < firstDay; i++){
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    cal.appendChild(empty);
+  }
+
+  // 🔥 ZATWIERDZONE DNI
   const takenDays = await getTakenDays();
 
-  for(let i=1;i<=daysInMonth;i++){
-    const day=document.createElement("div");
-    day.className="day";
-    day.innerText=i;
+  for(let i = 1; i <= daysInMonth; i++){
+    const day = document.createElement("div");
+    day.className = "day";
+    day.innerText = i;
 
-    // 🔥 jeśli dzień jest już zajęty
     if(takenDays.includes(i)){
       day.classList.add("taken");
     } else {
-      day.onclick=()=>{ 
+      day.onclick = () => {
         if(selectedDays.includes(i)){
-          selectedDays=selectedDays.filter(d=>d!==i);
+          selectedDays = selectedDays.filter(d => d !== i);
           day.classList.remove("selected");
         } else {
           selectedDays.push(i);
@@ -438,6 +531,10 @@ async function buildCalendar(){
 }
 
 
+
+
+
+
 function changeMonth(delta){
   currentMonth+=delta;
   if(currentMonth<0){currentMonth=11; currentYear--;}
@@ -445,44 +542,81 @@ function changeMonth(delta){
   buildCalendar();
 }
 
-async function sendVacation(){
-  if(selectedDays.length===0){alert("Zaznacz dni!"); return;}
-  const type=document.getElementById("leaveType").value;
-  const daysData = await db.collection("employees").doc(currentUser.email).get();
-  const days = daysData.data();
-  if(type==="na żądanie" && selectedDays.length>days.task){alert("Brak wystarczającej liczby dni na żądanie!"); return;}
-  if(type==="wypoczynkowy" && selectedDays.length>days.vacation){alert("Brak wystarczającej liczby dni wypoczynkowych!"); return;}
-  if(type==="na żądanie") days.task-=selectedDays.length;
-  else days.vacation-=selectedDays.length;
-  await db.collection("employees").doc(currentUser.email).set(days);
+async function sendVacation(){ 
+  if(selectedDays.length === 0){
+    alert("Zaznacz dni!");
+    return;
+  }
 
-  const newDoc = await db.collection("vacationRequests").add({
+  const type = document.getElementById("leaveType").value;
+  const status = (type === "na żądanie") ? "zatwierdzony" : "oczekuje";
+
+  if(type === "na żądanie"){
+    const empRef = db.collection("employees").doc(currentUser.email);
+    const empSnap = await empRef.get();
+    const emp = empSnap.data();
+
+    if(emp.task < selectedDays.length){
+      alert("Brak dni na żądanie!");
+      return;
+    }
+
+    emp.task -= selectedDays.length;
+    await empRef.set(emp);
+
+    // 🔥 TO BYŁO BRAKUJĄCE
+    document.getElementById("remainingTaskDays").innerText = emp.task;
+  }
+
+  await db.collection("vacationRequests").add({
     user: currentUser.email,
-    month: currentMonth,
-    year: currentYear,
-    days: selectedDays,
-    type: type,
-    status: "oczekuje"
+    days: selectedDays.map(d => ({
+      day: d,
+      month: currentMonth,
+      year: currentYear
+    })),
+    type,
+    status
   });
-  selectedDays=[];
+
+  selectedDays = [];
   buildCalendar();
-  await loadEmployeeRequests();
+  loadEmployeeRequests();
 }
+
+
+
+
 
 async function loadEmployeeRequests(){
-  const table=document.getElementById("employeeTable");
-  table.innerHTML="<tr><th>Dni</th><th>Typ</th><th>Status</th></tr>";
+  const table = document.getElementById("employeeTable");
+  table.innerHTML = "<tr><th>Dni</th><th>Typ</th><th>Status</th></tr>";
+
   const snapshot = await db.collection("vacationRequests").where("user","==",currentUser.email).get();
-  snapshot.forEach(doc=>{
-    const r=doc.data();
-    const row=table.insertRow();
-    row.insertCell(0).innerText=`${monthNames[r.month]} ${r.days.join(", ")}`;
-    row.insertCell(1).innerText=r.type;
-    row.insertCell(2).innerText=r.status;
-    if(r.status==="zatwierdzony") row.classList.add("approved");
-    if(r.status==="odrzucony") row.classList.add("rejected");
+  snapshot.forEach(doc => {
+    const r = doc.data();
+    const row = table.insertRow();
+
+    // 🔥 Bezpieczne mapowanie dni
+    let daysText = "";
+    if(r.days && r.days.length > 0){
+      // sprawdzamy czy dni są liczbami (stary format)
+      if(typeof r.days[0] === "number"){
+        daysText = r.days.map(d => `${d} ${monthNames[r.month]}`).join(", ");
+      } else { // nowy format: obiekty {day, month, year}
+        daysText = r.days.map(d => `${d.day} ${monthNames[d.month]}`).join(", ");
+      }
+    }
+
+    row.insertCell(0).innerText = daysText;
+    row.insertCell(1).innerText = r.type;
+    row.insertCell(2).innerText = r.status;
+
+    if(r.status === "zatwierdzony") row.classList.add("approved");
+    if(r.status === "odrzucony") row.classList.add("rejected");
   });
 }
+
 </script>
 </body>
 </html>
